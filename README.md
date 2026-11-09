@@ -6,7 +6,7 @@ Toda a criptografia roda no navegador: **Botan (C++) compilado para WebAssembly*
 
 Projeto da disciplina Criptografia 2026/2, DCC/ICEx/UFMG (Prof. Jeroen van de Graaf).
 
-- **Demo:** https://afa7789.github.io/IEG-ufmg-2026/
+- **Demo:** https://afa7789.github.io/cipher-inbox-ufmg-2026/
 - **Contrato na Sepolia (ElGamal):** [`0x5641e5ec07332023b8354f96a36e7986B482656c`](https://sepolia.etherscan.io/address/0x5641e5ec07332023b8354f96a36e7986B482656c)
 - **Contrato na Sepolia (ML-KEM, mesmo bytecode):** [`0xe2232f3a20ffa8273461DE25464a2B7CdF801b15`](https://sepolia.etherscan.io/address/0xe2232f3a20ffa8273461DE25464a2B7CdF801b15)
 

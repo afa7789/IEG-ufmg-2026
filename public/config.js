@@ -23,4 +23,4 @@ export const DEV_ACCOUNTS = [
   { index: 3, address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906', key: '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6' },
 ]
 
-export const REPO = 'https://github.com/afa7789/IEG-ufmg-2026'
+export const REPO = 'https://github.com/afa7789/cipher-inbox-ufmg-2026'
