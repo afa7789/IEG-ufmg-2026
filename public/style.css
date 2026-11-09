@@ -279,7 +279,7 @@ body.slides .hero.slide-active h2 { font-size: 2rem; max-width: 40ch; }
 body.slides .slide-active legend { font-size: 3.5rem; font-weight: 700; margin-bottom: 0.5em; float: left; width: 100%; }
 body.slides .slide-active p, body.slides .slide-active ol, body.slides .slide-active ul { max-width: 60ch; margin-bottom: 0.6em; font-size: 1.75rem; }
 body.slides .slide-active li { margin-bottom: 0.45em; }
-body.slides .slide-active.dense ul { font-size: 1.25rem; max-width: 75ch; }
+body.slides .slide-active.dense ul { font-size: 1.5rem; max-width: 75ch; }
 body.slides .slide-active.dense li { margin-bottom: 0.2em; }
 body.slides .slide-active table { font-size: 1.5rem; max-width: 80ch; }
 body.slides .slide-active th { width: 12ch; }
@@ -299,7 +299,7 @@ body.slides .slide-active th { white-space: nowrap; }
 .scheme-switch .segmented button { margin: 0; }
 /* Slides densos (tabelas grandes): fonte menor para caber em uma tela */
 body.slides .slide-active.dense p { font-size: 1.25rem; max-width: 75ch; }
-body.slides .slide-active.dense table { font-size: 1.05rem; max-width: none; }
+body.slides .slide-active.dense table { font-size: 1.2rem; max-width: none; }
 body.slides .slide-active.dense th, body.slides .slide-active.dense td { padding: 3px 12px 3px 0; }
 body.slides .slide-active.dense { padding-top: 5vh; }
 body.slides .slide-active.dense legend { font-size: 2.75rem; }
