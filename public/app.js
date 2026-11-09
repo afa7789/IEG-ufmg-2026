@@ -321,6 +321,7 @@ async function doRefresh() {
 async function init() {
   renderHeader(document.body.dataset.page ?? 'index.html')
   document.querySelectorAll('[data-scheme-label]').forEach((n) => { n.textContent = scheme.label })
+  document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { location.href = b.dataset.go }))
   if (scheme.setMode && $('mode')) {
     for (const m of scheme.MODES) $('mode').append(Object.assign(el('option', '', m), { value: m }))
     $('mode').value = scheme.mode

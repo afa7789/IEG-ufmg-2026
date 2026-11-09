@@ -4,7 +4,7 @@ import { REPO } from './config.js'
 
 export const $ = (id) => document.getElementById(id)
 
-const PAGES = [['index.html', 'App'], ['attack.html', 'Ataque'], ['pq.html', 'Pós-quântico'], ['admin.html', 'Rede local'], ['about.html', 'Sobre']]
+const PAGES = [['index.html', 'App'], ['attack.html', 'Ataque'], ['admin.html', 'Rede local'], ['about.html', 'Sobre']]
 
 export function renderHeader(active) {
   const header = document.querySelector('header')

@@ -82,7 +82,7 @@
     <fieldset>
       <legend>E se o atacante tiver um computador quântico?</legend>
       <p>Pollard rho é exponencial; o algoritmo de <strong>Shor</strong> resolve o log discreto em tempo polinomial. ElGamal-2048, inviável hoje, cai em horas numa máquina quântica tolerante a falhas (milhões de qubits físicos, pelas estimativas atuais). Não dá para demonstrar isso aqui: simular Shor só funciona para p de poucos bits.</p>
-      <p>O que dá para fazer é trocar o esquema. A página <a href="pq.html">Pós-quântico</a> usa <strong>ML-KEM</strong> (FIPS 203, ex-Kyber, também do Botan): encapsula um segredo com a chave pública, HKDF deriva uma chave e AES-256/GCM cifra a mensagem. O contrato é o mesmo bytecode, numa segunda instância: continua guardando <code>bytes</code> sem saber qual esquema está por trás.</p>
+      <p>O que dá para fazer é trocar o esquema. O botão "ML-KEM · pós-quântico" no topo do <a href="pq.html">App</a> usa <strong>ML-KEM</strong> (FIPS 203, ex-Kyber, também do Botan): encapsula um segredo com a chave pública, HKDF deriva uma chave e AES-256/GCM cifra a mensagem. O contrato é o mesmo bytecode, numa segunda instância: continua guardando <code>bytes</code> sem saber qual esquema está por trás.</p>
       <table>
         <thead><tr><th>esquema</th><th>segurança</th><th>pub (B)</th><th>c1+c2 (B)</th><th>keygen</th><th>cifrar</th><th>decifrar</th><th>gas registro</th><th>gas envio</th></tr></thead>
         <tbody id="compareTable"></tbody>

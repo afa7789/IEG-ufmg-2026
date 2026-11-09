@@ -6,12 +6,19 @@
   <title>ElGamal Inbox — Pós-quântico</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-scheme="mlkem" data-page="pq.html">
+<body data-scheme="mlkem" data-page="index.html">
   <header></header>
 
   <section class="hero">
     <h1>Versão pós-quântica</h1>
     <h2>Mesmo app, mesmo contrato, outro esquema: <strong>ML-KEM</strong> (FIPS 203, ex-Kyber) encapsula um segredo, HKDF deriva a chave e AES-256/GCM cifra a mensagem. Sem log discreto para o algoritmo de Shor atacar. O contrato nem percebe: continua guardando <code>bytes</code>.</h2>
+    <p class="scheme-switch">
+      <span class="hint">Esquema</span>
+      <span class="segmented">
+        <button class="secondary" data-go="index.html" aria-pressed="false">ElGamal 2048</button>
+        <button class="secondary" data-go="pq.html" aria-pressed="true">ML-KEM · pós-quântico</button>
+      </span>
+    </p>
   </section>
 
   <main>

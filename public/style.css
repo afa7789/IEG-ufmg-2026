@@ -293,3 +293,5 @@ body.slides #benchLog { display: none; }
 body.slides .slide-active p { font-size: 1.25rem; }
 body.slides .slide-hide { display: none; }
 body.slides .slide-active th { white-space: nowrap; }
+.scheme-switch { display: flex; align-items: center; gap: 16px; margin-top: 18px; }
+.scheme-switch .segmented button { margin: 0; }

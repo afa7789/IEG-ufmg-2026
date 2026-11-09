@@ -41,7 +41,7 @@ npm run test:install     # uma vez: baixa o Chromium headless do Playwright
 npm test                 # sobe anvil + servidor, roda Alice → Bob → Alice, grava demo-anvil.webm + .log
 ```
 
-Versão pós-quântica (página **Pós-quântico**) e comparação com gas real em Anvil:
+Versão pós-quântica (toggle "Esquema" no topo do App → `pq.html`) e comparação com gas real em Anvil:
 
 ```bash
 npm run test:pq          # mesmo fluxo Alice → Bob → Alice com ML-KEM; grava demo-anvil-pq.{webm,log}
