@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-09T12:33:05.107Z",
+  "environment": "Chromium headless (Playwright), wasm single-thread",
+  "results": [
+    {
+      "bits": 16,
+      "p": "0xAE9B",
+      "iters": 207,
+      "ms": 1,
+      "rate": 258750,
+      "xOk": true,
+      "decrypted": "o"
+    },
+    {
+      "bits": 20,
+      "p": "0x08ACCB",
+      "iters": 1195,
+      "ms": 0,
+      "rate": 3983332,
+      "xOk": true,
+      "decrypted": "o"
+    },
+    {
+      "bits": 24,
+      "p": "0x98762F",
+      "iters": 6610,
+      "ms": 1,
+      "rate": 11016668,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 28,
+      "p": "0x0D5A38EF",
+      "iters": 17836,
+      "ms": 1,
+      "rate": 22294998,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 32,
+      "p": "0xC94DC5A3",
+      "iters": 41319,
+      "ms": 2,
+      "rate": 25824375,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 36,
+      "p": "0x0888809F33",
+      "iters": 126064,
+      "ms": 4,
+      "rate": 31516000,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 40,
+      "p": "0xE849DBF4D7",
+      "iters": 1664437,
+      "ms": 51,
+      "rate": 32764508,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 44,
+      "p": "0x0DF042B5DB27",
+      "iters": 1969178,
+      "ms": 60,
+      "rate": 32765025,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 48,
+      "p": "0xDEB6E6423997",
+      "iters": 16207373,
+      "ms": 441,
+      "rate": 36743081,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 52,
+      "p": "0x0E366BD7322F1F",
+      "iters": 30392556,
+      "ms": 631,
+      "rate": 48196251,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 56,
+      "p": "0xB3C96797DBC7E7",
+      "iters": 315469083,
+      "ms": 6546,
+      "rate": 48194122,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 60,
+      "p": "0x08EEC19E29D24467",
+      "iters": 1239343805,
+      "ms": 26193,
+      "rate": 47316382,
+      "xOk": true,
+      "decrypted": "oi"
+    },
+    {
+      "bits": 64,
+      "p": "0xBA1EEDDACB6D4BC3",
+      "iters": 6554843315,
+      "ms": 140183,
+      "rate": 46759289,
+      "xOk": true,
+      "decrypted": "oi"
+    }
+  ]
+}

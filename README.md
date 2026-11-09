@@ -40,6 +40,12 @@ npm run test:install     # uma vez: baixa o Chromium headless do Playwright
 npm test                 # sobe anvil + servidor, roda Alice → Bob → Alice, grava demo-anvil.webm + .log
 ```
 
+Benchmark do ataque (página **Ataque**: chaves de 16 a 64 bits quebradas por Pollard rho; grava `public/media/bench-dlp.{json,log}`):
+
+```bash
+npm run bench            # ~3 min; BENCH_TO=48 npm run bench para uma rodada curta
+```
+
 A página **Sobre** tem um **Modo slide** (botão no topo ou `about.html#slides`): setas avançam, Esc sai. Serve de apresentação.
 
 Regenerar o WebAssembly (baixa Botan 3.14.1, compila com Emscripten, linka `wasm/bridge.c`):
@@ -54,13 +60,15 @@ brew install emscripten
 | Caminho | Papel |
 |---|---|
 | `contracts/src/MessageInbox.sol` | Registry de chaves públicas + inbox + `getUsers()` (diretório de quem registrou). Não conhece ElGamal. |
-| `wasm/bridge.c` | Ponte C sobre a FFI do [Botan](https://botan.randombit.net): `eg_keygen`, `eg_encrypt`, `eg_decrypt`, `eg_pub_fields`. RNG vem de `crypto.getRandomValues`. |
+| `wasm/bridge.c` | Ponte C sobre a FFI do [Botan](https://botan.randombit.net): `eg_keygen`, `eg_encrypt`, `eg_decrypt`, `eg_pub_fields`. RNG vem de `crypto.getRandomValues`. Também o ataque: `dlp_start/run` (Pollard rho, Montgomery 64 bits). |
+| `wasm/bridge_weak.cpp` | API C++ do Botan: chaves fracas (p de 8–64 bits, primo seguro) e `eg_decrypt_with_x` (decifra com o x recuperado). |
 | `public/wasm/` | `botan-elgamal.wasm` (768 KB) + glue Emscripten, gerados por `wasm/build.sh` e commitados. |
 | `public/elgamal.js` | Wrapper JS: heap, ponteiros, hex. Chave pública on-chain = DER SubjectPublicKeyInfo (p, g, y). |
 | `public/contract.js` | viem: deploy, `registerPublicKey`, `publicKeys`, `sendMessage`, `getMessages`. |
 | `public/app.js` | Tela principal (passos). |
 | `public/admin.js` | Rede local: status RPC, faucet via `anvil_setBalance`, contas dev. |
-| `public/about.html` + `slides.js` | Descrição do projeto, vídeo/log da demo e modo slide. |
+| `public/attack.html` + `attack.js` + `attack-worker.js` | Ataque: chave fraca (Botan), Pollard rho em wasm num Web Worker, benchmark e projeção. |
+| `public/about.html` + `slides.js` | Descrição do projeto, vídeo/log da demo, tabela do benchmark e modo slide. |
 | `test/e2e.mjs` | Teste E2E (Playwright + carteira fake → Anvil). Grava `public/media/demo-anvil.{webm,log}`. |
 
 Sem bundler: viem vem do esm.sh; o ElGamal é o `.wasm` local. GitHub Pages publica `public/` no push em `main` (`.github/workflows/pages.yml`).
@@ -69,13 +77,15 @@ Sem bundler: viem vem do esm.sh; o ElGamal é o `.wasm` local. GitHub Pages publ
 
 **Esperado.** Uma demo ponta a ponta de ElGamal sobre blockchain: contrato enxuto, matemática off-chain, rede local e testnet, página hospedada.
 
-**Alcançado.** Tudo acima, com ElGamal vindo de uma biblioteca C/C++ consolidada (Botan) rodando em WebAssembly. Fluxo Alice/Bob verificado em Anvil com teste automatizado (`npm test`, Playwright com carteira fake), que também grava o vídeo e o log mostrados na página Sobre; contrato publicado na Sepolia. No navegador: keygen 2048 bits ≈ 16 ms, cifrar ≈ 48 ms, decifrar ≈ 33 ms.
+**Alcançado.** Tudo acima, com ElGamal vindo de uma biblioteca C/C++ consolidada (Botan) rodando em WebAssembly, mais a parte de análise: ataque por log discreto (Pollard rho) que quebra chaves de até 64 bits no navegador (64 bits em ~2,5 min, 47 M iterações/s) e projeta o custo para 2048 bits (≈ 10^293 anos com esse método). Fluxo Alice/Bob verificado em Anvil com teste automatizado (`npm test`, Playwright com carteira fake), que também grava o vídeo e o log mostrados na página Sobre; contrato publicado na Sepolia. No navegador: keygen 2048 bits ≈ 16 ms, cifrar ≈ 48 ms, decifrar ≈ 33 ms.
 
 **Dificuldades.**
 - NaCl/libsodium não implementam ElGamal (fazem X25519 + XSalsa20). libtomcrypt, OpenSSL e mbedTLS também não. Botan tem ElGamal nativo e suporte oficial a Emscripten.
 - Primeira versão usou a lib JS `elgamal` (jsbn) via esm.sh: precisou de `?bundle` e de um `Buffer` global. Foi substituída pelo wasm.
 - Botan compila com `-fwasm-exceptions`; o link da ponte falhava até repetir a flag.
 - O RNG do Botan precisa de entropia: resolvido com `botan_rng_init_custom` chamando `crypto.getRandomValues` via `EM_JS`.
+- A FFI do Botan não monta `DL_Group` com q, e o DER exige q: as chaves fracas foram para C++ (`bridge_weak.cpp`).
+- Worker com top-level `await` perdia a primeira mensagem (corrida com o carregamento do wasm): handler síncrono + `import()` dinâmico.
 
 **Desvios.** Hardhat foi trocado por Foundry (anvil já era requisito). O script CLI virou a própria UI. Grupo fixo `modp/ietf/2048` em vez de gerar p por chave. O contrato ganhou `getUsers()`: varrer eventos `PublicKeyRegistered` via `eth_getLogs` em RPC público travava com janelas grandes; um array on-chain resolve com uma chamada.
 

@@ -35,5 +35,6 @@ export function initSlides() {
     show(index + 1)
   })
 
+  window.addEventListener('hashchange', () => toggle(location.hash === '#slides'))
   if (on || location.hash === '#slides') toggle(true)
 }

@@ -284,3 +284,10 @@ body.slides .slide-active pre { font-size: 1rem; max-height: 40vh; }
 body.slides .slide-active video { max-width: 80vw; max-height: 60vh; }
 body.slides .slide-counter { display: block; position: fixed; right: 24px; bottom: 16px; font-weight: 600; opacity: 0.6; }
 body.slides .hero .hint { font-size: 1rem; }
+
+/* ---- Attack page + bench table in slides ---- */
+fieldset p.hint { display: block; }
+body.slides .slide-active table { font-size: 1rem; }
+body.slides .slide-active th, body.slides .slide-active td { padding: 4px 12px 4px 0; }
+body.slides #benchLog { display: none; }
+body.slides .slide-active p { font-size: 1.25rem; }

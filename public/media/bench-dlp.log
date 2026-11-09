@@ -1,0 +1,16 @@
+[   0.4s] Pollard rho em wasm, tamanhos: 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64 bits
+[   0.7s] 16 bits · p=0xAE9B · 207 it · 0.001 s · 258.750 it/s · x ok · "o"
+[   0.7s] 20 bits · p=0x08ACCB · 1.195 it · 0.000 s · 3.983.332 it/s · x ok · "o"
+[   0.8s] 24 bits · p=0x98762F · 6.610 it · 0.001 s · 11.016.668 it/s · x ok · "oi"
+[   0.9s] 28 bits · p=0x0D5A38EF · 17.836 it · 0.001 s · 22.294.998 it/s · x ok · "oi"
+[   0.9s] 32 bits · p=0xC94DC5A3 · 41.319 it · 0.002 s · 25.824.375 it/s · x ok · "oi"
+[   1.0s] 36 bits · p=0x0888809F33 · 126.064 it · 0.004 s · 31.516.000 it/s · x ok · "oi"
+[   1.1s] 40 bits · p=0xE849DBF4D7 · 1.664.437 it · 0.051 s · 32.764.508 it/s · x ok · "oi"
+[   1.3s] 44 bits · p=0x0DF042B5DB27 · 1.969.178 it · 0.060 s · 32.765.025 it/s · x ok · "oi"
+[   1.8s] 48 bits · p=0xDEB6E6423997 · 16.207.373 it · 0.441 s · 36.743.081 it/s · x ok · "oi"
+[   2.5s] 52 bits · p=0x0E366BD7322F1F · 30.392.556 it · 0.631 s · 48.196.251 it/s · x ok · "oi"
+[   9.1s] 56 bits · p=0xB3C96797DBC7E7 · 315.469.083 it · 6.546 s · 48.194.122 it/s · x ok · "oi"
+[  35.3s] 60 bits · p=0x08EEC19E29D24467 · 1.239.343.805 it · 26.193 s · 47.316.382 it/s · x ok · "oi"
+[ 175.6s] 64 bits · p=0xBA1EEDDACB6D4BC3 · 6.554.843.315 it · 140.183 s · 46.759.289 it/s · x ok · "oi"
+[ 175.6s] Taxa no maior tamanho: 46.759.289 it/s. A 46.759.289 it/s: 80 bits ≈ 0.2 dias · 128 bits ≈ 11.050 anos · 2048 bits (chave do app) ≈ 10^293 anos. Rho é exponencial; o melhor ataque conhecido para Z_p* (NFS) é subexponencial, mas 2048 bits continua inviável.
+[ 175.6s] RESULTADO: OK

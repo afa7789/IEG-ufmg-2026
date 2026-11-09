@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ElGamal Inbox — Ataque</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header></header>
+
+  <section class="hero">
+    <h1>Quebrando ElGamal</h1>
+    <h2>A segurança está no log discreto: achar x tal que y = g<sup>x</sup> mod p. Com p pequeno, Pollard rho acha x em segundos. Aqui você escolhe o tamanho de p, cifra, ataca e mede o tempo. Tudo no navegador, sem carteira.</h2>
+  </section>
+
+  <main>
+    <fieldset id="stepKey">
+      <legend>1. Chave fraca</legend>
+      <p>
+        <label>Bits de p <select id="bits"></select></label>
+        <label>Mensagem <input id="message" size="24" maxlength="7" value="oi" placeholder="≤ bits/8 bytes"></label>
+        <button id="weak">Gerar chave e cifrar</button>
+      </p>
+      <pre id="keyView"></pre>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepBreak">
+      <legend>2. Ataque (Pollard rho)</legend>
+      <p>
+        <button id="break">Quebrar</button>
+        <button id="stop" class="secondary" disabled>Parar</button>
+      </p>
+      <p id="progress" class="feedback" role="status"></p>
+      <pre id="breakView"></pre>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepBench">
+      <legend>3. Benchmark</legend>
+      <p>
+        <label>De <select id="benchFrom"></select></label>
+        <label>Até <select id="benchTo"></select></label>
+        <button id="bench">Rodar</button>
+        <button id="benchCopy" class="secondary">Copiar JSON</button>
+      </p>
+      <p class="hint">Cada tamanho: gera chave, cifra, quebra, confere x e decifra com o x recuperado. Tempo esperado cresce ~√q = 2<sup>bits/2</sup>: cada +8 bits ≈ 16× mais lento.</p>
+      <table>
+        <thead><tr><th>bits</th><th>p</th><th>iterações</th><th>tempo</th><th>it/s</th><th>x ok</th><th>decifrado</th></tr></thead>
+        <tbody id="results"></tbody>
+      </table>
+      <p id="extrapolation" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+  </main>
+
+  <aside>
+    <div>
+      <h2 class="section">Log</h2>
+      <pre id="log"></pre>
+    </div>
+  </aside>
+
+  <script type="module" src="attack.js"></script>
+</body>
+</html>

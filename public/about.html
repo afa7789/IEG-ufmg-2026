@@ -68,6 +68,18 @@
     </fieldset>
 
     <fieldset>
+      <legend>Quebrando: log discreto com Pollard rho</legend>
+      <p>A página <a href="attack.html">Ataque</a> gera chaves ElGamal com p pequeno (8–64 bits, também pelo Botan), cifra, e recupera x a partir de (p, g, y) com Pollard rho (caminhada r-adding, ciclo de Brent, aritmética de Montgomery em C compilado para wasm). O x recuperado é entregue ao Botan, que decifra a mensagem: prova de que a quebra é real.</p>
+      <p>Resultados de <code>npm run bench</code> (Chromium headless, uma thread). Iterações ≈ 1,25·√q, q = (p−1)/2: cada +8 bits ≈ 16× mais tempo.</p>
+      <table>
+        <thead><tr><th>bits de p</th><th>iterações</th><th>tempo</th><th>it/s</th><th>x certo</th></tr></thead>
+        <tbody id="benchTable"></tbody>
+      </table>
+      <p id="benchSummary" class="feedback"></p>
+      <pre id="benchLog">carregando log…</pre>
+    </fieldset>
+
+    <fieldset>
       <legend>Limitações (de propósito)</legend>
       <ul>
         <li>ElGamal textbook: maleável, sem padding, sem segurança CCA. Serve para estudar o esquema, não para uso real.</li>
@@ -85,6 +97,8 @@
     renderHeader('about.html')
     initSlides()
     fetch('media/demo-anvil.log').then((r) => (r.ok ? r.text() : 'log indisponível')).then((t) => { document.getElementById('demoLog').textContent = t })
+    fetch('media/bench-dlp.log').then((r) => (r.ok ? r.text() : 'log indisponível')).then((t) => { document.getElementById('benchLog').textContent = t })
+    import('./bench-table.js').then((m) => m.renderBench('benchTable', 'benchSummary'))
   </script>
 </body>
 </html>

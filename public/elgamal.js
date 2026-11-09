@@ -97,3 +97,44 @@ export function decrypt(key, c1, c2) {
     return new TextDecoder().decode(takeBytes(pt, ptLen))
   })
 }
+
+// ---- Parte 2: chaves fracas e ataque (log discreto). Usado pela página "Ataque" e pelo worker. ----
+
+const weak = {
+  keygen: M.cwrap('eg_keygen_weak', 'number', ['number', 'number', 'number', 'number', 'number', 'number']),
+  decryptWithX: M.cwrap('eg_decrypt_with_x', 'number', ['number', 'number', 'string', 'number', 'number', 'number', 'number']),
+  start: M.cwrap('dlp_start', 'number', ['string', 'string', 'string']),
+  run: M.cwrap('dlp_run', 'number', ['number']),
+  iters: M.cwrap('dlp_iters', 'number', []),
+  lo: M.cwrap('dlp_result_lo', 'number', []),
+  hi: M.cwrap('dlp_result_hi', 'number', []),
+}
+
+// Chave ElGamal com p de `bits` bits (8–64): insegura de propósito. Inclui x para conferir o ataque.
+export function keygenWeak(bits) {
+  return withHeap(({ slot }) => {
+    const [priv, privLen, pub, pubLen, x] = [slot(), slot(), slot(), slot(), slot()]
+    check(weak.keygen(bits, priv, privLen, pub, pubLen, x))
+    const pubHex = bytesToHex(takeBytes(pub, pubLen))
+    return { priv: bytesToHex(takeBytes(priv, privLen)), pub: pubHex, x: takeString(x), ...decodePubKey(pubHex) }
+  })
+}
+
+// Decifra usando só a chave pública + o x recuperado: o Botan monta a privada a partir de (p, g, x).
+export function decryptWithX(pubKey, xHex, c1, c2) {
+  return withHeap(({ push, slot }) => {
+    const der = hexToBytes(pubKey.pub)
+    const ct = new Uint8Array([...hexToBytes(c1), ...hexToBytes(c2)])
+    const [pt, ptLen] = [slot(), slot()]
+    check(weak.decryptWithX(push(der), der.length, xHex, push(ct), ct.length, pt, ptLen))
+    return new TextDecoder().decode(takeBytes(pt, ptLen))
+  })
+}
+
+// Pollard rho resumível: start, depois run(budget) até devolver true; x em hex, iters contadas.
+export const solver = {
+  start(pubKey) { check(weak.start(pubKey.p, pubKey.g, pubKey.y)) },
+  run(budget) { const r = weak.run(budget); check(r < 0 ? r : 0); return r === 1 },
+  iters() { return weak.iters() },
+  x() { return `0x${((BigInt(weak.hi()) << 32n) | BigInt(weak.lo())).toString(16).toUpperCase()}` },
+}
