@@ -282,7 +282,7 @@ body.slides .slide-active table { font-size: 1.5rem; max-width: 80ch; }
 body.slides .slide-active th { width: 12ch; }
 body.slides .slide-active th, body.slides .slide-active td { padding: 10px 16px 10px 0; }
 body.slides .slide-active pre { font-size: 1.1rem; max-height: 40vh; }
-body.slides .slide-active video { max-width: 80vw; max-height: 55vh; width: auto; }
+body.slides .slide-active video { max-width: 80vw; max-height: 50vh; width: auto; }
 body.slides #demoLog { display: none; }
 body.slides .slide-counter { display: block; position: fixed; right: 24px; bottom: 16px; font-weight: 600; opacity: 0.6; }
 body.slides .hero .hint { font-size: 1rem; }
