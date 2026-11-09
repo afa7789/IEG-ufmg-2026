@@ -24,6 +24,7 @@ anvil --chain-id 31337 --block-time 2
 
 Na página **Rede local** há os comandos, um botão para adicionar o Anvil na MetaMask, faucet e as contas de teste.
 Na página **App**: conectar → escolher ou deployar o contrato → gerar e registrar a chave → enviar → ler a inbox.
+A chave privada fica no `localStorage` do navegador. **Baixe o backup (.txt)** no passo 3; o mesmo arquivo restaura a chave em outro navegador via "Importar".
 
 Recompilar o contrato e atualizar o ABI usado pela página:
 
@@ -67,4 +68,4 @@ Sem bundler: viem vem do esm.sh; o ElGamal é o `.wasm` local. GitHub Pages publ
 
 **Desvios.** Hardhat foi trocado por Foundry (anvil já era requisito). O script CLI virou a própria UI. Grupo fixo `modp/ietf/2048` em vez de gerar p por chave.
 
-**Limitações assumidas.** ElGamal textbook com padding `Raw` (maleável, sem CCA), chave privada em `localStorage`, metadados públicos na cadeia. É material de estudo, não um produto.
+**Limitações assumidas.** ElGamal textbook com padding `Raw` (maleável, sem CCA), chave privada em `localStorage` e no `.txt` de backup em claro, metadados públicos na cadeia. É material de estudo, não um produto.

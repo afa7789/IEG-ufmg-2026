@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ElGamal Inbox</title>
   <link rel="stylesheet" href="style.css">
-  <script>try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'green' } catch {}</script>
 </head>
 <body>
   <header></header>
@@ -44,8 +43,11 @@
       <p>
         <button id="keygen">Gerar chave</button>
         <button id="register">Registrar chave pública on-chain</button>
+        <button id="download" class="secondary">Baixar chave (.txt)</button>
+        <button id="import" class="secondary">Importar chave (.txt)</button>
+        <input id="importFile" type="file" accept=".txt,text/plain" hidden>
       </p>
-      <p class="hint">Chave gerada pelo Botan (C++ → WebAssembly). A privada fica no localStorage deste navegador, em claro (demo acadêmica).</p>
+      <p class="hint">Chave gerada pelo Botan (C++ → WebAssembly). A privada fica no localStorage deste navegador, em claro. Baixe o .txt como backup: sem ele, mensagens recebidas ficam ilegíveis se o storage for apagado.</p>
       <pre id="keyView"></pre>
       <p id="keyState" class="feedback" role="status"></p>
       <p class="error" role="alert"></p>

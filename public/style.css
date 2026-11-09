@@ -1,23 +1,17 @@
-/* Visual language from doiim.com: neon green field, near-black ink, Faktum, 6-column grid. */
+/* Visual language from doiim.com: white field, near-black ink, Faktum, 6-column grid. */
 @font-face { font-family: 'Faktum'; src: url('fonts/faktum-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Faktum'; src: url('fonts/faktum-semibold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
 @font-face { font-family: 'Faktum'; src: url('fonts/faktum-bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
 @font-face { font-family: 'Faktum'; src: url('fonts/faktum-extrabold.woff2') format('woff2'); font-weight: 800; font-display: swap; }
 
 :root {
-  --green: #00ffa2;
+  --green: #ffffff;
   --ink: #091311;
   --ink-hover: #193630;
   --tint: rgba(9, 19, 17, 0.07);
   --gap: 48px;
   --pad: 72px;
 }
-
-/* Themes: --green is the field color (page, button text, popovers); --ink the text and controls. */
-:root[data-theme="white"] { --green: #ffffff; }
-:root[data-theme="pastel"] { --green: #d9f2e6; --ink: #1d2a33; --ink-hover: #34495a; }
-:root[data-theme="paper"] { --green: #f5f1e8; --ink: #2b2620; --ink-hover: #4a4035; }
-:root[data-theme="papyrus"] { --green: #e9dcc0; --ink: #3a2e1f; --ink-hover: #5a4630; }
 
 * { margin: 0; box-sizing: border-box; }
 
@@ -39,7 +33,6 @@ a:hover { color: var(--ink-hover); }
 
 header { grid-column: 1 / 7; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
 header .logo { font-weight: 800; border: 0; margin-right: auto; }
-header .theme select { padding: 2px 0; font-weight: 600; }
 
 /* Connection indicator: outlined when off, solid ink when connected. */
 .badge { font-weight: 600; padding: 4px 12px; border: 1px solid var(--ink); white-space: nowrap; }

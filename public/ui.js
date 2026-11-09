@@ -5,7 +5,6 @@ import { REPO } from './config.js'
 export const $ = (id) => document.getElementById(id)
 
 const PAGES = [['index.html', 'App'], ['admin.html', 'Rede local'], ['about.html', 'Sobre']]
-const THEMES = ['green', 'white', 'pastel', 'paper', 'papyrus']
 
 export function renderHeader(active) {
   const header = document.querySelector('header')
@@ -22,20 +21,6 @@ export function renderHeader(active) {
   const repo = el('a', '', '→ repo')
   repo.href = REPO
   header.append(repo)
-  header.append(themePicker())
-}
-
-function themePicker() {
-  const select = el('select')
-  for (const t of THEMES) select.append(Object.assign(el('option', '', t), { value: t }))
-  select.value = document.documentElement.dataset.theme || 'green'
-  select.addEventListener('change', () => {
-    document.documentElement.dataset.theme = select.value
-    try { localStorage.setItem('theme', select.value) } catch { /* modo privado */ }
-  })
-  const label = el('label', 'theme', select)
-  label.setAttribute('aria-label', 'Tema')
-  return label
 }
 
 export const log = (msg) => {

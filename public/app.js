@@ -62,6 +62,7 @@ function render() {
   $('keyView').textContent = keyText()
   $('keyState').textContent = state.registered ? 'Chave pública registrada on-chain ✓' : (state.key ? 'Chave local ainda não registrada' : '')
   $('register').disabled = !state.key
+  $('download').disabled = !state.key
   renderInbox()
   renderSteps()
 }
@@ -161,6 +162,52 @@ async function doRegister() {
   await syncRegistered()
 }
 
+// ---- backup (.txt) ----
+
+const KEY_FIELDS = ['priv', 'pub']
+
+function keyFileText() {
+  const k = state.key
+  return [
+    'ElGamal Inbox — chave privada (backup). Quem tiver este arquivo lê suas mensagens.',
+    `rede: ${state.chainId} (${chain().name})`,
+    `endereco: ${state.address}`,
+    `gerada: ${new Date().toISOString()}`,
+    `grupo: p=${k.pBytes * 8} bits, g=${k.g}`,
+    `priv: ${k.priv}`,
+    `pub: ${k.pub}`,
+    '',
+  ].join('\n')
+}
+
+function doDownload() {
+  if (!state.key) throw new Error('Nenhuma chave para baixar')
+  const blob = new Blob([keyFileText()], { type: 'text/plain' })
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `elgamal-key-${state.chainId}-${state.address.slice(2, 10)}.txt` })
+  a.click()
+  URL.revokeObjectURL(a.href)
+  log('Backup da chave baixado')
+}
+
+// Aceita o .txt gerado acima: procura as linhas "priv:" e "pub:" (hex DER).
+function parseKeyFile(text) {
+  const found = {}
+  for (const line of text.split(/\r?\n/)) {
+    const m = line.match(/^(priv|pub):\s*(0x[0-9a-fA-F]+)\s*$/)
+    if (m) found[m[1]] = m[2]
+  }
+  if (!KEY_FIELDS.every((f) => found[f])) throw new Error('Arquivo não contém as linhas "priv:" e "pub:"')
+  return found
+}
+
+async function doImport(file) {
+  const { priv, pub } = parseKeyFile(await file.text())
+  state.key = { priv, pub, ...decodePubKey(pub) }
+  saveKey(state.chainId, state.address, state.key)
+  log(`Chave importada de ${file.name}: y = ${short(state.key.y)}`)
+  await syncRegistered()
+}
+
 // ---- send / inbox ----
 
 async function doSend() {
@@ -202,6 +249,13 @@ async function init() {
   on('deploy', doDeploy, render)
   on('keygen', doKeygen, render)
   on('register', doRegister, render)
+  on('download', doDownload, render)
+  on('import', () => $('importFile').click(), render)
+  $('importFile').addEventListener('change', () => {
+    const [file] = $('importFile').files
+    $('importFile').value = ''
+    if (file) doImport(file).catch((e) => log(`ERRO ${e.message}`)).then(render)
+  })
   on('send', doSend, render)
   on('refresh', doRefresh, render)
   render()
