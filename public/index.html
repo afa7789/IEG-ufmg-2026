@@ -56,8 +56,13 @@
     <fieldset id="stepSend" class="step">
       <legend>4. Enviar mensagem <span class="lock">registre sua chave</span></legend>
       <p>
+        <label>Contatos <select id="contacts"></select></label>
         <label>Destinatário <input id="to" size="44" placeholder="0x…" spellcheck="false"></label>
+        <label>Apelido <input id="alias" size="14" placeholder="ex: Alice"></label>
+        <button id="saveContact" class="secondary">Salvar contato</button>
+        <button id="removeContact" class="secondary">Remover</button>
       </p>
+      <p class="hint">Contatos ficam no localStorage e valem em todas as redes. O apelido aparece na caixa de entrada.</p>
       <p>
         <label>Mensagem <input id="message" size="60" maxlength="200" placeholder="até 200 bytes"></label>
         <button id="send">Cifrar e enviar</button>

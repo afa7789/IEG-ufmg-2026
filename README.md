@@ -25,6 +25,7 @@ anvil --chain-id 31337 --block-time 2
 Na página **Rede local** há os comandos, um botão para adicionar o Anvil na MetaMask, faucet e as contas de teste.
 Na página **App**: conectar → escolher ou deployar o contrato → gerar e registrar a chave → enviar → ler a inbox.
 A chave privada fica no `localStorage` do navegador. **Baixe o backup (.txt)** no passo 3; o mesmo arquivo restaura a chave em outro navegador via "Importar".
+No passo 4 dá para salvar destinatários com apelido (também em `localStorage`); o apelido aparece na caixa de entrada.
 
 Recompilar o contrato e atualizar o ABI usado pela página:
 

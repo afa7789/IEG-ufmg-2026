@@ -18,3 +18,8 @@ export const saveContract = (chainId, address) => write(contractKey(chainId), ad
 
 export const loadKey = (chainId, address) => read(keyKey(chainId, address))
 export const saveKey = (chainId, address, key) => write(keyKey(chainId, address), key)
+
+// Contatos (apelido → endereço) valem para todas as redes: o endereço é o mesmo.
+const CONTACTS = 'elgamal.contacts'
+export const loadContacts = () => read(CONTACTS) ?? []
+export const saveContacts = (list) => write(CONTACTS, list)

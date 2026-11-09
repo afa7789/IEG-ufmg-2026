@@ -3,11 +3,11 @@ import { CHAINS, DL_GROUP, chainById } from './config.js'
 import { balanceOf, clients, deploy, read, write } from './contract.js'
 import { el } from './dom.js'
 import { decodePubKey, decrypt, encodePubKey, encrypt, keygen } from './elgamal.js'
-import { loadContract, loadKey, saveContract, saveKey } from './storage.js'
+import { loadContacts, loadContract, loadKey, saveContacts, saveContract, saveKey } from './storage.js'
 import { $, log, on, renderHeader, short } from './ui.js'
 import { connect, discoverInjected, switchChain } from './wallets.js'
 
-const state = { providers: [], provider: null, address: null, chainId: null, balance: null, contract: null, key: null, registered: false, messages: [] }
+const state = { providers: [], provider: null, address: null, chainId: null, balance: null, contract: null, key: null, registered: false, messages: [], contacts: loadContacts() }
 
 const chain = () => chainById(state.chainId)
 const api = () => clients(state.provider, chain(), state.address)
@@ -63,8 +63,20 @@ function render() {
   $('keyState').textContent = state.registered ? 'Chave pública registrada on-chain ✓' : (state.key ? 'Chave local ainda não registrada' : '')
   $('register').disabled = !state.key
   $('download').disabled = !state.key
+  renderContacts()
   renderInbox()
   renderSteps()
+}
+
+const aliasOf = (address) => state.contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())?.alias
+const whoIs = (address) => (aliasOf(address) ? `${aliasOf(address)} (${short(address, 4)})` : short(address, 6))
+
+function renderContacts() {
+  const sel = $('contacts')
+  const current = sel.value
+  sel.replaceChildren(Object.assign(el('option', '', '—'), { value: '' }))
+  for (const c of state.contacts) sel.append(Object.assign(el('option', '', `${c.alias} · ${short(c.address, 4)}`), { value: c.address }))
+  sel.value = state.contacts.some((c) => c.address === current) ? current : ''
 }
 
 function renderInbox() {
@@ -77,7 +89,7 @@ function renderInbox() {
     btn.addEventListener('click', () => {
       try { cell.textContent = decrypt(state.key, m.c1, m.c2) } catch (e) { cell.textContent = `✕ ${e.message}` }
     })
-    tbody.append(el('tr', '', el('td', '', String(i + 1)), el('td', '', short(m.sender, 6)), el('td', '', short(m.c1, 6)), el('td', '', short(m.c2, 6)), cell))
+    tbody.append(el('tr', '', el('td', '', String(i + 1)), el('td', '', whoIs(m.sender)), el('td', '', short(m.c1, 6)), el('td', '', short(m.c2, 6)), cell))
   })
   $('inboxState').textContent = state.address && ready() ? `${state.messages.length} mensagem(ns)` : ''
 }
@@ -208,6 +220,37 @@ async function doImport(file) {
   await syncRegistered()
 }
 
+// ---- contacts ----
+
+function pickContact() {
+  const c = state.contacts.find((x) => x.address === $('contacts').value)
+  $('to').value = c?.address ?? ''
+  $('alias').value = c?.alias ?? ''
+}
+
+function saveContact() {
+  const address = $('to').value.trim()
+  const alias = $('alias').value.trim()
+  if (!isAddress(address)) throw new Error('Endereço inválido')
+  if (!alias) throw new Error('Dê um apelido')
+  state.contacts = [...state.contacts.filter((c) => c.address.toLowerCase() !== address.toLowerCase()), { address, alias }]
+    .sort((a, b) => a.alias.localeCompare(b.alias))
+  saveContacts(state.contacts)
+  log(`Contato salvo: ${alias} = ${short(address, 6)}`)
+  renderContacts()
+  $('contacts').value = address
+}
+
+function removeContact() {
+  const address = $('to').value.trim()
+  const before = state.contacts.length
+  state.contacts = state.contacts.filter((c) => c.address.toLowerCase() !== address.toLowerCase())
+  if (state.contacts.length === before) throw new Error('Esse endereço não está nos contatos')
+  saveContacts(state.contacts)
+  $('alias').value = ''
+  log(`Contato removido: ${short(address, 6)}`)
+}
+
 // ---- send / inbox ----
 
 async function doSend() {
@@ -221,7 +264,7 @@ async function doSend() {
   $('sendView').textContent = `c1 = ${c1}\nc2 = ${c2}`
   log(`Mensagem cifrada (${(c1.length - 2) / 2} + ${(c2.length - 2) / 2} bytes), enviando…`)
   const hash = await write(api(), state.contract, 'sendMessage', [to, c1, c2])
-  log(`Enviada para ${short(to, 6)} (tx ${short(hash, 6)})`)
+  log(`Enviada para ${whoIs(to)} (tx ${short(hash, 6)})`)
   $('message').value = ''
 }
 
@@ -257,6 +300,9 @@ async function init() {
     if (file) doImport(file).catch((e) => log(`ERRO ${e.message}`)).then(render)
   })
   on('send', doSend, render)
+  on('saveContact', saveContact, render)
+  on('removeContact', removeContact, render)
+  $('contacts').addEventListener('change', pickContact)
   on('refresh', doRefresh, render)
   render()
 }
