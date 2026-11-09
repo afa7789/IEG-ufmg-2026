@@ -10,14 +10,15 @@ function write(key, value) {
   } catch { /* storage indisponível: vale só nesta visita */ }
 }
 
-export const contractKey = (chainId) => `elgamal.contract.${chainId}`
-export const keyKey = (chainId, address) => `elgamal.key.${chainId}.${address.toLowerCase()}`
+// Chaves e contratos são por esquema ('elgamal' | 'mlkem'): o prefixo 'elgamal.' é mantido por compatibilidade.
+export const contractKey = (scheme, chainId) => `${scheme}.contract.${chainId}`
+export const keyKey = (scheme, chainId, address) => `${scheme}.key.${chainId}.${address.toLowerCase()}`
 
-export const loadContract = (chainId) => read(contractKey(chainId))
-export const saveContract = (chainId, address) => write(contractKey(chainId), address)
+export const loadContract = (scheme, chainId) => read(contractKey(scheme, chainId))
+export const saveContract = (scheme, chainId, address) => write(contractKey(scheme, chainId), address)
 
-export const loadKey = (chainId, address) => read(keyKey(chainId, address))
-export const saveKey = (chainId, address, key) => write(keyKey(chainId, address), key)
+export const loadKey = (scheme, chainId, address) => read(keyKey(scheme, chainId, address))
+export const saveKey = (scheme, chainId, address, key) => write(keyKey(scheme, chainId, address), key)
 
 // Contatos (apelido → endereço) valem para todas as redes: o endereço é o mesmo.
 const CONTACTS = 'elgamal.contacts'

@@ -32,6 +32,13 @@ static int rng(void) {
   return rc ? fail(rc) : 0;
 }
 
+// RNG compartilhado com bridge_pq.c
+int eg_rng_handle(botan_rng_t* out) {
+  int rc = rng();
+  *out = g_rng;
+  return rc;
+}
+
 // Exporta com a dança "pergunta tamanho, aloca, exporta".
 static int export_priv(botan_privkey_t key, uint8_t** out, size_t* len) {
   *len = 0;

@@ -1,7 +1,9 @@
-// Redes suportadas. `contract` é o endereço default; o usuário pode sobrescrever (deploy pela UI → localStorage).
+// Redes suportadas. `contracts` tem o endereço default por esquema (mesmo bytecode, instâncias separadas:
+// a chave pública on-chain é um slot por endereço, então ElGamal e ML-KEM não podem dividir a instância).
+// O usuário pode sobrescrever (deploy pela UI → localStorage).
 export const CHAINS = [
-  { id: 31337, name: 'Anvil (local)', rpc: 'http://127.0.0.1:8545', explorer: null, contract: null },
-  { id: 11155111, name: 'Sepolia', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', explorer: 'https://sepolia.etherscan.io', contract: '0x5641e5ec07332023b8354f96a36e7986B482656c' },
+  { id: 31337, name: 'Anvil (local)', rpc: 'http://127.0.0.1:8545', explorer: null, contracts: {} },
+  { id: 11155111, name: 'Sepolia', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', explorer: 'https://sepolia.etherscan.io', contracts: { elgamal: '0x5641e5ec07332023b8354f96a36e7986B482656c', mlkem: '0xe2232f3a20ffa8273461DE25464a2B7CdF801b15' } },
 ]
 
 export const ANVIL = CHAINS[0]

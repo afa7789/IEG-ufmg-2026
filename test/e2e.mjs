@@ -8,7 +8,10 @@ import { chromium } from 'playwright'
 
 const ROOT = new URL('..', import.meta.url)
 const MEDIA = new URL('public/media/', ROOT)
-const PAGE = 'http://localhost:8080/index.html'
+// SCHEME=mlkem npm test → roda a página pós-quântica (pq.html) e grava demo-anvil-pq.*
+const SCHEME = process.env.SCHEME ?? 'elgamal'
+const PAGE = `http://localhost:8080/${SCHEME === 'mlkem' ? 'pq.html' : 'index.html'}`
+const OUT = SCHEME === 'mlkem' ? 'demo-anvil-pq' : 'demo-anvil'
 const MSG = 'Oi Alice, o projeto de cripto ta pronto!'
 const SLOW = Number(process.env.SLOW ?? 900)
 
@@ -48,8 +51,8 @@ async function run(page) {
   await step(`Deploy do MessageInbox em ${await page.inputValue('#contractAddr')}`)
 
   await page.click('#keygen')
-  await page.waitForFunction(() => document.querySelector('#keyView').textContent.includes('y ='))
-  await step(`Chave ElGamal gerada (Botan/wasm): ${(await text('keyView')).split('\n')[0]}`)
+  await page.waitForFunction(() => document.querySelector('#keyView').textContent.includes('DER pública'))
+  await step(`Chave gerada (Botan/wasm): ${(await text('keyView')).split('\n')[0]}`)
 
   await page.click('#register')
   await page.waitForSelector('#stepKey[data-state="done"]')
@@ -60,7 +63,7 @@ async function run(page) {
   assert(/^priv: 0x[0-9a-f]+$/m.test(txt) && /^pub: 0x[0-9a-f]+$/m.test(txt), 'backup .txt sem priv/pub')
   await step(`Backup baixado: ${dl.suggestedFilename()}`)
 
-  await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('elgamal.key.')).forEach((k) => localStorage.removeItem(k)))
+  await page.evaluate((prefix) => Object.keys(localStorage).filter((k) => k.startsWith(prefix)).forEach((k) => localStorage.removeItem(k)), `${SCHEME}.key.`)
   await page.reload()
   await page.waitForSelector('#injected option', { state: 'attached' })
   await page.click('#connect')
@@ -135,19 +138,19 @@ await page.addInitScript(readFileSync(new URL('fake-wallet.js', import.meta.url)
 let exit = 0
 try {
   await run(page)
-  log('RESULTADO: OK — fluxo Alice → Bob → Alice completo em Anvil')
+  log(`RESULTADO: OK — fluxo Alice → Bob → Alice completo em Anvil (${SCHEME})`)
 } catch (e) {
   exit = 1
   log(`RESULTADO: FALHOU — ${e.message}`)
 } finally {
   const video = page.video()
   await ctx.close()
-  copyFileSync(await video.path(), new URL('demo-anvil.webm', MEDIA))
+  copyFileSync(await video.path(), new URL(`${OUT}.webm`, MEDIA))
   rmSync(videoDir, { recursive: true, force: true })
   await browser.close()
   anvil.kill()
   server.kill()
-  writeFileSync(new URL('demo-anvil.log', MEDIA), `${lines.join('\n')}\n`)
-  log('gravado: public/media/demo-anvil.webm + demo-anvil.log')
+  writeFileSync(new URL(`${OUT}.log`, MEDIA), `${lines.join('\n')}\n`)
+  log(`gravado: public/media/${OUT}.webm + ${OUT}.log`)
 }
 process.exit(exit)
