@@ -1,0 +1,6 @@
+MessageInbox em 0xa85233c63b9ee964add6f2cffe00fd84eb32338f (Anvil)
+ElGamal-2048  pub   813 B · ct   512 B · keygen 16.4 ms · enc 48.0 ms · dec 33.3 ms · gas registro 679.969 (est. 562.808) · gas envio 479.962 (est. 378.312)
+ML-KEM-512    pub   822 B · ct   828 B · keygen 2.1 ms · enc 2.6 ms · dec 0.8 ms · gas registro 662.953 (est. 562.952) · gas envio 706.883 (est. 583.368)
+ML-KEM-768    pub  1206 B · ct  1148 B · keygen 0.2 ms · enc 0.4 ms · dec 0.3 ms · gas registro 935.341 (est. 809.096) · gas envio 933.927 (est. 788.488)
+ML-KEM-1024   pub  1590 B · ct  1628 B · keygen 0.3 ms · enc 0.4 ms · dec 0.5 ms · gas registro 1.207.657 (est. 1.055.240) · gas envio 1.274.463 (est. 1.096.168)
+RESULTADO: OK

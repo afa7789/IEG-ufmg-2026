@@ -8,7 +8,7 @@ const PAGES = [['index.html', 'App'], ['attack.html', 'Ataque'], ['admin.html', 
 
 export function renderHeader(active) {
   const header = document.querySelector('header')
-  header.append(el('a', 'logo', 'ElGamal Inbox'))
+  header.append(el('a', 'logo', 'Inbox Cifrada'))
   header.lastChild.href = 'index.html'
   for (const [href, label] of PAGES) {
     const a = el('a', href === active ? 'active' : '', label)

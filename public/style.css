@@ -291,3 +291,7 @@ body.slides .slide-active table { font-size: 1rem; }
 body.slides .slide-active th, body.slides .slide-active td { padding: 4px 12px 4px 0; }
 body.slides #benchLog { display: none; }
 body.slides .slide-active p { font-size: 1.25rem; }
+body.slides .slide-hide { display: none; }
+body.slides .slide-active th { white-space: nowrap; }
+.scheme-switch { display: flex; align-items: center; gap: 16px; margin-top: 18px; }
+.scheme-switch .segmented button { margin: 0; }

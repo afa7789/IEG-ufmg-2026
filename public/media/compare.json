@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-09T17:05:39.763Z",
+  "message": "32 bytes",
+  "results": [
+    {
+      "name": "ElGamal-2048",
+      "security": "~112 bits · 0 contra Shor",
+      "pub": 813,
+      "priv": 584,
+      "ct": 512,
+      "tk": 16.399999976158142,
+      "te": 48,
+      "td": 33.299999952316284,
+      "gasRegister": 562808,
+      "gasSend": 378312,
+      "gasRegisterReal": 679969,
+      "gasSendReal": 479962
+    },
+    {
+      "name": "ML-KEM-512",
+      "security": "NIST 1 (≈ AES-128)",
+      "pub": 822,
+      "priv": 86,
+      "ct": 828,
+      "tk": 2.100000023841858,
+      "te": 2.600000023841858,
+      "td": 0.7999999523162842,
+      "gasRegister": 562952,
+      "gasSend": 583368,
+      "gasRegisterReal": 662953,
+      "gasSendReal": 706883
+    },
+    {
+      "name": "ML-KEM-768",
+      "security": "NIST 3 (≈ AES-192)",
+      "pub": 1206,
+      "priv": 86,
+      "ct": 1148,
+      "tk": 0.20000004768371582,
+      "te": 0.3999999761581421,
+      "td": 0.30000007152557373,
+      "gasRegister": 809096,
+      "gasSend": 788488,
+      "gasRegisterReal": 935341,
+      "gasSendReal": 933927
+    },
+    {
+      "name": "ML-KEM-1024",
+      "security": "NIST 5 (≈ AES-256)",
+      "pub": 1590,
+      "priv": 86,
+      "ct": 1628,
+      "tk": 0.2999999523162842,
+      "te": 0.3999999761581421,
+      "td": 0.5,
+      "gasRegister": 1055240,
+      "gasSend": 1096168,
+      "gasRegisterReal": 1207657,
+      "gasSendReal": 1274463
+    }
+  ]
+}

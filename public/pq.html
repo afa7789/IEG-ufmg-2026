@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inbox Cifrada — Pós-quântico</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-scheme="mlkem" data-page="index.html">
+  <header></header>
+
+  <section class="hero">
+    <h1>Versão pós-quântica</h1>
+    <h2>Mesmo app, mesmo contrato, outro esquema: <strong>ML-KEM</strong> (FIPS 203, ex-Kyber) encapsula um segredo, HKDF deriva a chave e AES-256/GCM cifra a mensagem. Sem log discreto para o algoritmo de Shor atacar. O contrato nem percebe: continua guardando <code>bytes</code>.</h2>
+    <p class="scheme-switch">
+      <span class="hint">Esquema</span>
+      <span class="segmented">
+        <button class="secondary" data-go="index.html" aria-pressed="false">ElGamal 2048</button>
+        <button class="secondary" data-go="pq.html" aria-pressed="true">ML-KEM · pós-quântico</button>
+      </span>
+    </p>
+  </section>
+
+  <main>
+    <fieldset id="stepWallet" class="step">
+      <legend>1. Carteira e rede</legend>
+      <p>
+        <label>Carteira <select id="injected"></select></label>
+        <button id="connect">Conectar</button>
+        <label>Rede <select id="chain"></select></label>
+      </p>
+      <p class="hint">Sepolia vem pré-selecionada e já tem contrato publicado. Para rede local, veja a página "Rede local".</p>
+      <p id="walletState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepContract" class="step">
+      <legend>2. Contrato (instância ML-KEM) <span class="lock">conecte a carteira</span></legend>
+      <p>
+        <label>Endereço do MessageInbox <input id="contractAddr" size="44" placeholder="0x…" spellcheck="false"></label>
+        <button id="useContract" class="secondary">Usar este</button>
+        <button id="useDefault" class="secondary">Default da rede</button>
+        <button id="deploy">Deploy novo</button>
+      </p>
+      <p class="hint">Instância separada da usada pelo ElGamal (a chave pública on-chain é um slot por endereço). Na Sepolia já existe um default.</p>
+      <p id="contractState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepKey" class="step">
+      <legend>3. Minha chave ML-KEM <span class="lock">escolha o contrato</span></legend>
+      <p>
+        <label>Parâmetro <select id="mode"></select></label>
+        <button id="keygen">Gerar chave</button>
+        <button id="register">Registrar chave pública on-chain</button>
+        <button id="download" class="secondary">Baixar chave (.txt)</button>
+        <button id="import" class="secondary">Importar chave (.txt)</button>
+        <input id="importFile" type="file" accept=".txt,text/plain" hidden>
+      </p>
+      <p class="hint">Par ML-KEM gerado pelo Botan (C++ → WebAssembly). A privada (semente de 64 bytes em DER) fica no localStorage, em claro. Baixe o .txt como backup.</p>
+      <pre id="keyView"></pre>
+      <p id="keyState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepSend" class="step">
+      <legend>4. Enviar mensagem <span class="lock">registre sua chave</span></legend>
+      <p>
+        <label>Contatos <select id="contacts"></select></label>
+        <label>Destinatário <input id="to" size="44" placeholder="0x…" spellcheck="false"></label>
+        <label>Apelido <input id="alias" size="14" placeholder="ex: Alice"></label>
+        <button id="saveContact" class="secondary">Salvar contato</button>
+        <button id="removeContact" class="secondary">Remover</button>
+      </p>
+      <p class="hint">Contatos ficam no localStorage e valem em todas as redes. O apelido aparece na caixa de entrada.</p>
+      <details>
+        <summary>Quem já registrou chave neste contrato</summary>
+        <p><button id="scan" class="secondary">Buscar no contrato</button></p>
+        <table>
+          <thead><tr><th>#</th><th>Endereço</th><th>Apelido</th><th></th></tr></thead>
+          <tbody id="directory"></tbody>
+        </table>
+        <p id="directoryState" class="feedback" role="status"></p>
+      </details>
+      <p>
+        <label>Mensagem <input id="message" size="60" maxlength="1000" placeholder="até 1000 bytes"></label>
+        <button id="send">Cifrar e enviar</button>
+      </p>
+      <pre id="sendView"></pre>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepInbox" class="step">
+      <legend>5. Caixa de entrada <span class="lock">registre sua chave</span></legend>
+      <p><button id="refresh" class="secondary">Atualizar</button></p>
+      <table>
+        <thead><tr><th>#</th><th>De</th><th>c1</th><th>c2</th><th>Texto</th></tr></thead>
+        <tbody id="inbox"></tbody>
+      </table>
+      <p id="inboxState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+    <fieldset id="stepCompare">
+      <legend>6. Comparação de esquemas</legend>
+      <p class="hint">Mede no seu navegador: tamanho da chave pública (vai on-chain), do ciphertext por mensagem de 32 bytes, tempos, e estima o gas de <code>registerPublicKey</code> + <code>sendMessage</code> (16 gas/byte de calldata + 20 000 por slot de 32 bytes gravado).</p>
+      <p><button id="compare" class="secondary">Medir</button></p>
+      <table>
+        <thead><tr><th>esquema</th><th>segurança</th><th>pub (B)</th><th>priv (B)</th><th>c1+c2 (B)</th><th>keygen</th><th>cifrar</th><th>decifrar</th><th>gas registro ≈</th><th>gas envio ≈</th></tr></thead>
+        <tbody id="compareTable"></tbody>
+      </table>
+      <p class="error" role="alert"></p>
+    </fieldset>
+  </main>
+
+  <aside>
+    <div>
+      <h2 class="section">Progresso</h2>
+      <ol class="progress">
+        <li data-step="stepWallet">Carteira</li>
+        <li data-step="stepContract">Contrato</li>
+        <li data-step="stepKey">Chave</li>
+        <li data-step="stepSend">Enviar</li>
+        <li data-step="stepInbox">Inbox</li>
+      </ol>
+      <h2 class="section">Log</h2>
+      <pre id="log"></pre>
+    </div>
+  </aside>
+
+  <script type="module" src="app.js"></script>
+  <script type="module" src="compare.js"></script>
+</body>
+</html>

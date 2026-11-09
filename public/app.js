@@ -1,11 +1,14 @@
 import { formatEther, isAddress } from 'https://esm.sh/viem@2.21.55'
-import { CHAINS, DEFAULT_CHAIN, DL_GROUP, chainById } from './config.js'
+import { byteLength } from './wasm-core.js'
+import { CHAINS, DEFAULT_CHAIN, chainById } from './config.js'
 import { balanceOf, clients, deploy, read, write } from './contract.js'
 import { el } from './dom.js'
-import { decodePubKey, decrypt, encodePubKey, encrypt, keygen } from './elgamal.js'
 import { loadContacts, loadContract, loadKey, saveContacts, saveContract, saveKey } from './storage.js'
 import { $, log, on, renderHeader, short } from './ui.js'
 import { connect, discoverInjected, switchChain } from './wallets.js'
+
+// Esquema vem do <body data-scheme>: 'elgamal' (index.html) ou 'mlkem' (pq.html). Mesma UI, mesmo contrato.
+const scheme = await import(`./scheme-${document.body.dataset.scheme ?? 'elgamal'}.js`)
 
 const state = { providers: [], provider: null, address: null, chainId: null, balance: null, contract: null, key: null, registered: false, messages: [], users: [], contacts: loadContacts() }
 
@@ -46,11 +49,7 @@ function walletText() {
   return `${short(state.address, 6)} · ${eth} ETH · ${c.name}`
 }
 
-function keyText() {
-  if (!state.key) return ''
-  const k = state.key
-  return `p = ${short(k.p)} (${k.pBytes * 8} bits)\ng = ${k.g}\ny = ${short(k.y)}\nDER pública = ${(k.pub.length - 2) / 2} bytes (vai on-chain) · DER privada = ${(k.priv.length - 2) / 2} bytes (localStorage)`
-}
+const keyText = () => (state.key ? scheme.keyText(state.key) : '')
 
 function render() {
   document.body.classList.toggle('connected', Boolean(state.address))
@@ -101,7 +100,7 @@ function renderInbox() {
     btn.disabled = !state.key
     const cell = el('td', '', btn)
     btn.addEventListener('click', () => {
-      try { cell.textContent = decrypt(state.key, m.c1, m.c2) } catch (e) { cell.textContent = `✕ ${e.message}` }
+      try { cell.textContent = scheme.decrypt(state.key, m.c1, m.c2) } catch (e) { cell.textContent = `✕ ${e.message}` }
     })
     tbody.append(el('tr', '', el('td', '', String(i + 1)), el('td', '', whoIs(m.sender)), el('td', '', short(m.c1, 6)), el('td', '', short(m.c2, 6)), cell))
   })
@@ -112,8 +111,8 @@ function renderInbox() {
 
 async function syncChainState() {
   const c = chain()
-  state.contract = c ? (loadContract(state.chainId) ?? c.contract) : null
-  state.key = c ? loadKey(state.chainId, state.address) : null
+  state.contract = c ? (loadContract(scheme.id, state.chainId) ?? c.contracts[scheme.id] ?? null) : null
+  state.key = c ? loadKey(scheme.id, state.chainId, state.address) : null
   state.messages = []
   state.users = []
   state.registered = false
@@ -124,7 +123,7 @@ async function syncChainState() {
 async function syncRegistered() {
   if (!state.key) return
   const onchain = await read(api(), state.contract, 'publicKeys', [state.address])
-  state.registered = onchain.toLowerCase() === encodePubKey(state.key).toLowerCase()
+  state.registered = onchain.toLowerCase() === scheme.encodePubKey(state.key).toLowerCase()
 }
 
 async function refreshWallet() {
@@ -166,16 +165,16 @@ async function pickChain() {
 function useContract() {
   const addr = $('contractAddr').value.trim()
   if (!isAddress(addr)) throw new Error('Endereço inválido')
-  saveContract(state.chainId, addr)
+  saveContract(scheme.id, state.chainId, addr)
   state.contract = addr
   log(`Contrato definido: ${addr}`)
   return syncChainState()
 }
 
 function useDefault() {
-  const addr = chain().contract
-  if (!addr) throw new Error(`${chain().name} não tem contrato default: faça deploy`)
-  saveContract(state.chainId, null)
+  const addr = chain().contracts[scheme.id]
+  if (!addr) throw new Error(`${chain().name} não tem contrato default para ${scheme.label}: faça deploy`)
+  saveContract(scheme.id, state.chainId, null)
   state.contract = addr
   log(`Contrato default da rede: ${addr}`)
   return syncChainState()
@@ -184,7 +183,7 @@ function useDefault() {
 async function doDeploy() {
   log('Enviando deploy do MessageInbox…')
   const { hash, address } = await deploy(api())
-  saveContract(state.chainId, address)
+  saveContract(scheme.id, state.chainId, address)
   state.contract = address
   log(`Deploy ok em ${address} (tx ${short(hash, 6)})`)
   await syncChainState()
@@ -193,15 +192,15 @@ async function doDeploy() {
 // ---- key ----
 
 async function doKeygen() {
-  log(`Gerando chave ElGamal no grupo ${DL_GROUP}…`)
-  state.key = keygen(DL_GROUP)
-  saveKey(state.chainId, state.address, state.key)
-  log(`Chave gerada: y = ${short(state.key.y)}`)
+  log(scheme.describeKeygen())
+  state.key = scheme.generate()
+  saveKey(scheme.id, state.chainId, state.address, state.key)
+  log(`Chave gerada (${scheme.label}): pública com ${(state.key.pub.length - 2) / 2} bytes`)
   await syncRegistered()
 }
 
 async function doRegister() {
-  const pub = encodePubKey(state.key)
+  const pub = scheme.encodePubKey(state.key)
   log(`registerPublicKey (${(pub.length - 2) / 2} bytes)…`)
   const hash = await write(api(), state.contract, 'registerPublicKey', [pub])
   log(`Registrada (tx ${short(hash, 6)})`)
@@ -215,11 +214,12 @@ const KEY_FIELDS = ['priv', 'pub']
 function keyFileText() {
   const k = state.key
   return [
-    'ElGamal Inbox — chave privada (backup). Quem tiver este arquivo lê suas mensagens.',
+    `Inbox Cifrada — chave privada ${scheme.label} (backup). Quem tiver este arquivo lê suas mensagens.`,
+    `esquema: ${scheme.id}`,
     `rede: ${state.chainId} (${chain().name})`,
     `endereco: ${state.address}`,
     `gerada: ${new Date().toISOString()}`,
-    `grupo: p=${k.pBytes * 8} bits, g=${k.g}`,
+    `parametros: ${k.mode ?? `p=${k.pBytes * 8} bits, g=${k.g}`}`,
     `priv: ${k.priv}`,
     `pub: ${k.pub}`,
     '',
@@ -229,7 +229,7 @@ function keyFileText() {
 function doDownload() {
   if (!state.key) throw new Error('Nenhuma chave para baixar')
   const blob = new Blob([keyFileText()], { type: 'text/plain' })
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `elgamal-key-${state.chainId}-${state.address.slice(2, 10)}.txt` })
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${scheme.id}-key-${state.chainId}-${state.address.slice(2, 10)}.txt` })
   a.click()
   URL.revokeObjectURL(a.href)
   log('Backup da chave baixado')
@@ -241,15 +241,17 @@ function parseKeyFile(text) {
   for (const line of text.split(/\r?\n/)) {
     const m = line.match(/^(priv|pub):\s*(0x[0-9a-fA-F]+)\s*$/)
     if (m) found[m[1]] = m[2]
+    const mode = line.match(/^parametros:\s*(ML-KEM-\d+)\s*$/)
+    if (mode) found.mode = mode[1]
   }
   if (!KEY_FIELDS.every((f) => found[f])) throw new Error('Arquivo não contém as linhas "priv:" e "pub:"')
   return found
 }
 
 async function doImport(file) {
-  const { priv, pub } = parseKeyFile(await file.text())
-  state.key = { priv, pub, ...decodePubKey(pub) }
-  saveKey(state.chainId, state.address, state.key)
+  const { priv, pub, mode } = parseKeyFile(await file.text())
+  state.key = { priv, pub, ...(mode ? { mode } : {}), ...scheme.decodePubKey(pub) }
+  saveKey(scheme.id, state.chainId, state.address, state.key)
   log(`Chave importada de ${file.name}: y = ${short(state.key.y)}`)
   await syncRegistered()
 }
@@ -294,7 +296,9 @@ async function doSend() {
   if (!text) throw new Error('Mensagem vazia')
   const pubBytes = await read(api(), state.contract, 'publicKeys', [to])
   if (pubBytes === '0x') throw new Error('Destinatário ainda não registrou chave pública')
-  const { c1, c2 } = encrypt(decodePubKey(pubBytes), text)
+  const pub = scheme.decodePubKey(pubBytes)
+  if (byteLength(text) > scheme.limitFor(pub)) throw new Error(`Mensagem longa demais: máximo ${scheme.limitFor(pub)} bytes`)
+  const { c1, c2 } = scheme.encrypt(pub, text)
   $('sendView').textContent = `c1 = ${c1}\nc2 = ${c2}`
   log(`Mensagem cifrada (${(c1.length - 2) / 2} + ${(c2.length - 2) / 2} bytes), enviando…`)
   const hash = await write(api(), state.contract, 'sendMessage', [to, c1, c2])
@@ -315,7 +319,14 @@ async function doRefresh() {
 // ---- init ----
 
 async function init() {
-  renderHeader('index.html')
+  renderHeader(document.body.dataset.page ?? 'index.html')
+  document.querySelectorAll('[data-scheme-label]').forEach((n) => { n.textContent = scheme.label })
+  document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { location.href = b.dataset.go }))
+  if (scheme.setMode && $('mode')) {
+    for (const m of scheme.MODES) $('mode').append(Object.assign(el('option', '', m), { value: m }))
+    $('mode').value = scheme.mode
+    $('mode').addEventListener('change', () => scheme.setMode($('mode').value))
+  }
   const chainSel = $('chain')
   chainSel.append(Object.assign(el('option', '', '—'), { value: '' }))
   for (const c of CHAINS) chainSel.append(Object.assign(el('option', '', c.name), { value: String(c.id) }))

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compila Botan (C++) para WebAssembly com Emscripten e linka as pontes (bridge.c: FFI + ataque; bridge_weak.cpp: chaves fracas).
+# Compila Botan (C++) para WebAssembly com Emscripten e linka as pontes (bridge.c: FFI + ataque; bridge_pq.c: ML-KEM + AES-GCM; bridge_weak.cpp: chaves fracas).
 # Saída: public/wasm/botan-elgamal.js + botan-elgamal.wasm (commitados; este script só roda para regenerar).
 # Requer: emcc/em++ (brew install emscripten), python3, curl, make.
 set -euo pipefail
@@ -18,15 +18,16 @@ fi
 if [ ! -f "$SRC/libbotan-3.a" ]; then
   (cd "$SRC" && python3 configure.py --cpu=wasm --os=emscripten --cc=emcc --cc-bin=em++ \
     --disable-shared-library --without-documentation --minimized-build \
-    --enable-modules=ffi,elgamal,eme_raw,system_rng,auto_rng --build-targets=static \
+    --enable-modules=ffi,elgamal,eme_raw,system_rng,auto_rng,ml_kem,aes,gcm,hkdf --build-targets=static \
     && make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)" libs)
 fi
 
 emcc -O2 -c bridge.c -I "$SRC/build/include/public" -o "$BUILD/bridge.o"
+emcc -O2 -c bridge_pq.c -I "$SRC/build/include/public" -o "$BUILD/bridge_pq.o"
 em++ -O2 -std=c++20 -fwasm-exceptions -c bridge_weak.cpp -I "$SRC/build/include/public" -o "$BUILD/bridge_weak.o"
-em++ -O2 -fwasm-exceptions "$BUILD/bridge.o" "$BUILD/bridge_weak.o" "$SRC/libbotan-3.a" \
+em++ -O2 -fwasm-exceptions "$BUILD/bridge.o" "$BUILD/bridge_pq.o" "$BUILD/bridge_weak.o" "$SRC/libbotan-3.a" \
   -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web,worker -sALLOW_MEMORY_GROWTH=1 \
-  -sEXPORTED_FUNCTIONS=_eg_keygen,_eg_keygen_weak,_eg_pub_fields,_eg_encrypt,_eg_decrypt,_eg_decrypt_with_x,_dlp_start,_dlp_run,_dlp_iters,_dlp_result_lo,_dlp_result_hi,_eg_last_error,_eg_free,_malloc,_free \
+  -sEXPORTED_FUNCTIONS=_eg_keygen,_eg_keygen_weak,_pq_keygen,_pq_encrypt,_pq_decrypt,_eg_pub_fields,_eg_encrypt,_eg_decrypt,_eg_decrypt_with_x,_dlp_start,_dlp_run,_dlp_iters,_dlp_result_lo,_dlp_result_hi,_eg_last_error,_eg_free,_malloc,_free \
   -sEXPORTED_RUNTIME_METHODS=cwrap,getValue,HEAPU8,UTF8ToString,stringToUTF8,lengthBytesUTF8 \
   -o "$OUT/botan-elgamal.js"
 ls -la "$OUT"

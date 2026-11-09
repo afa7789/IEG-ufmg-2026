@@ -8,12 +8,15 @@
     "build:contract": "forge build --root contracts && node scripts/sync-abi.mjs",
     "test": "node test/e2e.mjs",
     "test:install": "playwright install chromium-headless-shell",
-    "bench": "node test/bench.mjs"
+    "bench": "node test/bench.mjs",
+    "compare": "node test/compare.mjs",
+    "test:pq": "SCHEME=mlkem node test/e2e.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "eslint": "10.13.0",
     "globals": "17.13.0",
-    "playwright": "^1.65.0"
+    "playwright": "^1.65.0",
+    "viem": "^2.21.55"
   }
 }

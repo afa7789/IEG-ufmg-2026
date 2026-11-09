@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ElGamal Inbox — Sobre</title>
+  <title>Inbox Cifrada — Sobre</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header></header>
 
   <section class="hero">
-    <h1>ElGamal Inbox</h1>
-    <h2>Mensagens cifradas com ElGamal clássico sobre Ethereum. Criptografia 2026/2 · DCC/ICEx/UFMG · Prof. Jeroen van de Graaf · Projeto de implementação.</h2>
+    <h1>Inbox Cifrada</h1>
+    <h2>Caixa de entrada cifrada sobre Ethereum: ElGamal clássico, ataque por log discreto e versão pós-quântica (ML-KEM). Criptografia 2026/2 · DCC/ICEx/UFMG · Prof. Jeroen van de Graaf · Projeto de implementação.</h2>
     <p><button id="slides" class="secondary">Modo slide</button> <span class="hint">setas ← → ou clique; Esc sai</span></p>
   </section>
 
@@ -80,6 +80,19 @@
     </fieldset>
 
     <fieldset>
+      <legend>E se o atacante tiver um computador quântico?</legend>
+      <p>Pollard rho é exponencial; o algoritmo de <strong>Shor</strong> resolve o log discreto em tempo polinomial. ElGamal-2048, inviável hoje, cai em horas numa máquina quântica tolerante a falhas (milhões de qubits físicos, pelas estimativas atuais). Não dá para demonstrar isso aqui: simular Shor só funciona para p de poucos bits.</p>
+      <p>O que dá para fazer é trocar o esquema. O botão "ML-KEM · pós-quântico" no topo do <a href="pq.html">App</a> usa <strong>ML-KEM</strong> (FIPS 203, ex-Kyber, também do Botan): encapsula um segredo com a chave pública, HKDF deriva uma chave e AES-256/GCM cifra a mensagem. O contrato é o mesmo bytecode, numa segunda instância: continua guardando <code>bytes</code> sem saber qual esquema está por trás.</p>
+      <table>
+        <thead><tr><th>esquema</th><th>segurança</th><th>pub (B)</th><th>c1+c2 (B)</th><th>keygen</th><th>cifrar</th><th>decifrar</th><th>gas registro</th><th>gas envio</th></tr></thead>
+        <tbody id="compareTable"></tbody>
+      </table>
+      <p id="compareSummary" class="feedback"></p>
+      <p class="slide-hide">Mensagem de 32 bytes; gas medido em Anvil (<code>npm run compare</code>). Ciphertext do ML-KEM é maior (o encapsulado tem 768–1568 bytes), mas a chave pública é parecida e a criptografia é 100× mais rápida. Preço do pós-quântico aqui: ~1,4× no registro e ~2× no envio.</p>
+      <video class="slide-hide" controls preload="metadata" src="media/demo-anvil-pq.webm"></video>
+    </fieldset>
+
+    <fieldset>
       <legend>Limitações (de propósito)</legend>
       <ul>
         <li>ElGamal textbook: maleável, sem padding, sem segurança CCA. Serve para estudar o esquema, não para uso real.</li>
@@ -98,7 +111,7 @@
     initSlides()
     fetch('media/demo-anvil.log').then((r) => (r.ok ? r.text() : 'log indisponível')).then((t) => { document.getElementById('demoLog').textContent = t })
     fetch('media/bench-dlp.log').then((r) => (r.ok ? r.text() : 'log indisponível')).then((t) => { document.getElementById('benchLog').textContent = t })
-    import('./bench-table.js').then((m) => m.renderBench('benchTable', 'benchSummary'))
+    import('./bench-table.js').then((m) => { m.renderBench('benchTable', 'benchSummary'); m.renderCompare('compareTable', 'compareSummary') })
   </script>
 </body>
 </html>
