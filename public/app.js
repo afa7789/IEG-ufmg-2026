@@ -1,5 +1,5 @@
 import { formatEther, isAddress } from 'https://esm.sh/viem@2.21.55'
-import { CHAINS, DL_GROUP, chainById } from './config.js'
+import { CHAINS, DEFAULT_CHAIN, DL_GROUP, chainById } from './config.js'
 import { balanceOf, clients, deploy, read, write } from './contract.js'
 import { el } from './dom.js'
 import { decodePubKey, decrypt, encodePubKey, encrypt, keygen } from './elgamal.js'
@@ -41,7 +41,7 @@ function renderSteps() {
 function walletText() {
   if (!state.address) return ''
   const c = chain()
-  if (!c) return `Rede não suportada (chainId ${state.chainId}). Escolha Anvil ou Sepolia no seletor.`
+  if (!c) return `Rede não suportada (chainId ${state.chainId}). Troque para Sepolia ou Anvil no seletor.`
   const eth = state.balance == null ? '…' : Number(formatEther(state.balance)).toFixed(4)
   return `${short(state.address, 6)} · ${eth} ETH · ${c.name}`
 }
@@ -56,7 +56,7 @@ function render() {
   document.body.classList.toggle('connected', Boolean(state.address))
   $('walletBadge').textContent = state.address ? short(state.address, 4) : 'desconectado'
   $('walletState').textContent = walletText()
-  $('chain').value = chain() ? String(state.chainId) : ''
+  if (chain()) $('chain').value = String(state.chainId)
   $('contractAddr').value = state.contract ?? ''
   $('contractState').textContent = state.contract ? `Usando ${state.contract}` : ''
   $('keyView').textContent = keyText()
@@ -135,6 +135,15 @@ async function refreshWallet() {
   await syncChainState()
 }
 
+// Carteira em rede desconhecida: leva para a rede escolhida no seletor (Sepolia por padrão).
+async function ensureSupportedChain() {
+  if (chain()) return
+  const target = chainById(Number($('chain').value)) ?? DEFAULT_CHAIN
+  log(`Rede ${state.chainId} não suportada, pedindo troca para ${target.name}…`)
+  await switchChain(state.provider, target)
+  await refreshWallet()
+}
+
 async function doConnect() {
   const picked = state.providers[Number($('injected').value)]
   if (!picked) throw new Error('Nenhuma carteira injetada encontrada (instale a MetaMask)')
@@ -142,6 +151,7 @@ async function doConnect() {
   picked.provider.on?.('chainChanged', () => refreshWallet().then(render))
   picked.provider.on?.('accountsChanged', () => refreshWallet().then(render))
   await refreshWallet()
+  await ensureSupportedChain()
 }
 
 async function pickChain() {
@@ -309,6 +319,7 @@ async function init() {
   const chainSel = $('chain')
   chainSel.append(Object.assign(el('option', '', '—'), { value: '' }))
   for (const c of CHAINS) chainSel.append(Object.assign(el('option', '', c.name), { value: String(c.id) }))
+  chainSel.value = String(DEFAULT_CHAIN.id)
   chainSel.addEventListener('change', () => pickChain().then(render).catch((e) => log(`ERRO ${e.message}`)))
 
   state.providers = await discoverInjected()

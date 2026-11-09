@@ -244,7 +244,7 @@ summary { cursor: pointer; font-weight: 600; }
 
 /* ---- ElGamal Inbox additions ---- */
 header a.active { font-weight: 700; }
-.prose p, .prose ol, .prose ul { margin: 0 0 12px; max-width: 75ch; }
+.prose p, .prose ol, .prose ul { display: block; margin: 0 0 12px; max-width: 75ch; }
 .prose ol, .prose ul { padding-left: 1.25em; }
 .prose li { margin-bottom: 6px; }
 .prose th { width: 9ch; white-space: nowrap; }
@@ -254,3 +254,33 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .command button { margin: 0; flex: none; }
 td button.small { margin: 0; }
 .hero sub, .hero sup { font-size: 0.6em; }
+
+/* ---- About: demo + slide mode ---- */
+.prose video { width: 100%; max-width: 960px; background: var(--ink); margin: 12px 0; display: block; }
+#demoLog { max-height: 320px; overflow-y: auto; }
+.slide-counter { display: none; }
+
+body.slides { display: block; padding: 0; min-height: 100vh; }
+body.slides header, body.slides aside { display: none; }
+body.slides .hero, body.slides main fieldset { display: none; }
+body.slides .slide-active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 10vh 8vw;
+  border: 0;
+  font-size: 1.5rem;
+  line-height: 1.35;
+}
+body.slides main { display: block; }
+body.slides .hero.slide-active h1 { font-size: 6rem; }
+body.slides .hero.slide-active h2 { font-size: 2rem; max-width: 40ch; }
+body.slides .slide-active legend { font-size: 3.5rem; font-weight: 700; margin-bottom: 0.5em; float: left; width: 100%; }
+body.slides .slide-active p, body.slides .slide-active ol, body.slides .slide-active ul { max-width: 60ch; margin-bottom: 0.6em; }
+body.slides .slide-active table { font-size: 1.25rem; max-width: 70ch; }
+body.slides .slide-active th { width: 12ch; }
+body.slides .slide-active pre { font-size: 1rem; max-height: 40vh; }
+body.slides .slide-active video { max-width: 80vw; max-height: 60vh; }
+body.slides .slide-counter { display: block; position: fixed; right: 24px; bottom: 16px; font-weight: 600; opacity: 0.6; }
+body.slides .hero .hint { font-size: 1rem; }

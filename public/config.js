@@ -5,6 +5,8 @@ export const CHAINS = [
 ]
 
 export const ANVIL = CHAINS[0]
+// Rede pré-selecionada no site; ao conectar numa rede não suportada, a carteira é levada para ela.
+export const DEFAULT_CHAIN = CHAINS[1]
 export const chainById = (id) => CHAINS.find((c) => c.id === id)
 
 // Grupo DL do Botan usado na geração de chaves (p de 2048 bits → mensagens de até 255 bytes).

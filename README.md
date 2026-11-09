@@ -33,6 +33,15 @@ Recompilar o contrato e atualizar o ABI usado pela página:
 npm run build:contract
 ```
 
+Teste ponta a ponta em Anvil, com vídeo e log (artefatos em `public/media/`, exibidos na página **Sobre**):
+
+```bash
+npm run test:install     # uma vez: baixa o Chromium headless do Playwright
+npm test                 # sobe anvil + servidor, roda Alice → Bob → Alice, grava demo-anvil.webm + .log
+```
+
+A página **Sobre** tem um **Modo slide** (botão no topo ou `about.html#slides`): setas avançam, Esc sai. Serve de apresentação.
+
 Regenerar o WebAssembly (baixa Botan 3.14.1, compila com Emscripten, linka `wasm/bridge.c`):
 
 ```bash
@@ -51,7 +60,8 @@ brew install emscripten
 | `public/contract.js` | viem: deploy, `registerPublicKey`, `publicKeys`, `sendMessage`, `getMessages`. |
 | `public/app.js` | Tela principal (passos). |
 | `public/admin.js` | Rede local: status RPC, faucet via `anvil_setBalance`, contas dev. |
-| `public/about.html` | Descrição do projeto. |
+| `public/about.html` + `slides.js` | Descrição do projeto, vídeo/log da demo e modo slide. |
+| `test/e2e.mjs` | Teste E2E (Playwright + carteira fake → Anvil). Grava `public/media/demo-anvil.{webm,log}`. |
 
 Sem bundler: viem vem do esm.sh; o ElGamal é o `.wasm` local. GitHub Pages publica `public/` no push em `main` (`.github/workflows/pages.yml`).
 
@@ -59,7 +69,7 @@ Sem bundler: viem vem do esm.sh; o ElGamal é o `.wasm` local. GitHub Pages publ
 
 **Esperado.** Uma demo ponta a ponta de ElGamal sobre blockchain: contrato enxuto, matemática off-chain, rede local e testnet, página hospedada.
 
-**Alcançado.** Tudo acima, com ElGamal vindo de uma biblioteca C/C++ consolidada (Botan) rodando em WebAssembly. Fluxo Alice/Bob verificado em Anvil com teste automatizado (Playwright com carteira fake); contrato publicado na Sepolia. No navegador: keygen 2048 bits ≈ 16 ms, cifrar ≈ 48 ms, decifrar ≈ 33 ms.
+**Alcançado.** Tudo acima, com ElGamal vindo de uma biblioteca C/C++ consolidada (Botan) rodando em WebAssembly. Fluxo Alice/Bob verificado em Anvil com teste automatizado (`npm test`, Playwright com carteira fake), que também grava o vídeo e o log mostrados na página Sobre; contrato publicado na Sepolia. No navegador: keygen 2048 bits ≈ 16 ms, cifrar ≈ 48 ms, decifrar ≈ 33 ms.
 
 **Dificuldades.**
 - NaCl/libsodium não implementam ElGamal (fazem X25519 + XSalsa20). libtomcrypt, OpenSSL e mbedTLS também não. Botan tem ElGamal nativo e suporte oficial a Emscripten.

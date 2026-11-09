@@ -10,8 +10,9 @@
   <header></header>
 
   <section class="hero">
-    <h1>Sobre o projeto</h1>
-    <h2>Criptografia 2026/2 · DCC/ICEx/UFMG · Prof. Jeroen van de Graaf · Projeto de implementação.</h2>
+    <h1>ElGamal Inbox</h1>
+    <h2>Mensagens cifradas com ElGamal clássico sobre Ethereum. Criptografia 2026/2 · DCC/ICEx/UFMG · Prof. Jeroen van de Graaf · Projeto de implementação.</h2>
+    <p><button id="slides" class="secondary">Modo slide</button> <span class="hint">setas ← → ou clique; Esc sai</span></p>
   </section>
 
   <main class="prose">
@@ -60,6 +61,13 @@
     </fieldset>
 
     <fieldset>
+      <legend>Demonstração em Anvil (teste automatizado)</legend>
+      <p>Gerado por <code>npm test</code>: sobe um Anvil, abre a página num navegador headless com uma carteira fake e executa Alice → Bob → Alice. O vídeo e o log abaixo são os artefatos desse teste, commitados em <code>public/media/</code>.</p>
+      <video controls preload="metadata" src="media/demo-anvil.webm"></video>
+      <pre id="demoLog">carregando log…</pre>
+    </fieldset>
+
+    <fieldset>
       <legend>Limitações (de propósito)</legend>
       <ul>
         <li>ElGamal textbook: maleável, sem padding, sem segurança CCA. Serve para estudar o esquema, não para uso real.</li>
@@ -73,7 +81,10 @@
   <aside></aside>
   <script type="module">
     import { renderHeader } from './ui.js'
+    import { initSlides } from './slides.js'
     renderHeader('about.html')
+    initSlides()
+    fetch('media/demo-anvil.log').then((r) => (r.ok ? r.text() : 'log indisponível')).then((t) => { document.getElementById('demoLog').textContent = t })
   </script>
 </body>
 </html>

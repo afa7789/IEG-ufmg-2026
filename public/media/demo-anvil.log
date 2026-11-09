@@ -1,0 +1,16 @@
+[  0.4s] anvil (31337) e servidor (8080) no ar
+[  1.9s] ✔ Alice conectada: 0xf39Fd6…b92266 · 9999.9948 ETH · Anvil (local)
+[  2.8s] ✔ Deploy do MessageInbox em 0xdc64a140aa3e981100a9beca4e685f962f0cf6c9
+[  3.8s] ✔ Chave ElGamal gerada (Botan/wasm): p = 0xFFFFFFFFFF…FFFFFFFFFF (2048 bits)
+[  4.7s] ✔ Chave pública registrada on-chain
+[  5.6s] ✔ Backup baixado: elgamal-key-31337-f39Fd6e5.txt
+[  7.4s] ✔ Storage apagado: chave sumiu
+[  8.4s] ✔ Chave importada do .txt e reconhecida como registrada
+[  9.3s] ✔ Troca para Bob: 0x709979…dc79C8 · 9999.9984 ETH · Anvil (local)
+[ 10.3s] ✔ Diretório: 1 endereço(s) com chave registrada; "usar" preencheu o destinatário
+[ 11.2s] ✔ Bob salvou Alice nos contatos
+[ 12.2s] ✔ Bob cifrou e enviou: c1 = 0x292dcd59b386ca1e84005446beab8bb09be386e43a7568eedf9e3…
+[ 13.1s] ✔ Troca de volta para Alice
+[ 14.1s] ✔ Inbox: 1 mensagem(ns), de "Bob (0x7099…79C8)"
+[ 15.1s] ✔ Alice decifrou: "Oi Alice, o projeto de cripto ta pronto!"
+[ 17.8s] RESULTADO: OK — fluxo Alice → Bob → Alice completo em Anvil
