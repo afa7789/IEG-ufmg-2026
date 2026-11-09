@@ -18,12 +18,23 @@
   <main class="prose">
     <fieldset>
       <legend>Ideia</legend>
-      <p>Uma caixa de entrada pública onde qualquer pessoa pode deixar uma mensagem que só o destinatário lê. O blockchain (Ethereum) serve como <strong>registro de chaves públicas</strong> e <strong>canal de entrega</strong>; a confidencialidade vem inteiramente do ElGamal, executado fora da cadeia.</p>
+      <ul>
+        <li>Caixa de entrada pública: qualquer um deposita, só o destinatário lê.</li>
+        <li>Ethereum faz dois papéis: <strong>registro de chaves públicas</strong> e <strong>canal de entrega</strong>.</li>
+        <li>A confidencialidade vem só da criptografia, executada fora da cadeia.</li>
+        <li>Dois esquemas sobre o mesmo contrato: ElGamal clássico e ML-KEM (pós-quântico).</li>
+      </ul>
     </fieldset>
 
     <fieldset>
       <legend>On-chain vs off-chain</legend>
-      <p>O contrato <code>MessageInbox</code> não sabe o que é ElGamal. Ele guarda <code>bytes</code>: uma chave pública por endereço, uma lista de pares <code>(c1, c2)</code> por destinatário e a lista de quem já registrou (<code>getUsers()</code>, para descobrir destinatários sem varrer eventos). Geração de chaves, cifragem e decifragem acontecem no navegador. Trocar o esquema (por exemplo, para EC-ElGamal) não exige mudar o contrato.</p>
+      <ul>
+        <li>O contrato <code>MessageInbox</code> não sabe o que é ElGamal: só guarda <code>bytes</code>.</li>
+        <li>Uma chave pública por endereço; uma lista de pares <code>(c1, c2)</code> por destinatário.</li>
+        <li><code>getUsers()</code> lista quem já registrou, sem varrer eventos.</li>
+        <li>Gerar chave, cifrar e decifrar: tudo no navegador.</li>
+        <li>Trocar o esquema não muda o contrato. Foi assim que entrou o ML-KEM.</li>
+      </ul>
     </fieldset>
 
     <fieldset>
@@ -36,7 +47,12 @@
           <tr><th>Decifrar</th><td>m = c2 · (c1<sup>x</sup>)<sup>−1</sup> mod p.</td></tr>
         </tbody>
       </table>
-      <p>Grupo fixo <code>modp/ietf/2048</code> (RFC 3526, g = 2). A mensagem UTF-8 vira um inteiro big-endian e precisa ser menor que p: cabem 255 bytes. A chave pública vai on-chain como DER (SubjectPublicKeyInfo, ~814 bytes, carrega p, g, y); o ciphertext é c1 ‖ c2 com 256 bytes cada.</p>
+      <ul>
+        <li>Grupo fixo <code>modp/ietf/2048</code> (RFC 3526, g = 2).</li>
+        <li>Mensagem UTF-8 vira inteiro big-endian menor que p: até 255 bytes.</li>
+        <li>Chave pública on-chain em DER (~814 bytes, carrega p, g, y).</li>
+        <li>Ciphertext = c1 ‖ c2, 256 bytes cada.</li>
+      </ul>
     </fieldset>
 
     <fieldset>
@@ -69,8 +85,12 @@
 
     <fieldset class="dense">
       <legend>Quebrando: log discreto com Pollard rho</legend>
-      <p>A página <a href="attack.html">Ataque</a> gera chaves ElGamal com p pequeno (8–64 bits, também pelo Botan), cifra, e recupera x a partir de (p, g, y) com Pollard rho (caminhada r-adding, ciclo de Brent, aritmética de Montgomery em C compilado para wasm). O x recuperado é entregue ao Botan, que decifra a mensagem: prova de que a quebra é real.</p>
-      <p>Resultados de <code>npm run bench</code> (Chromium headless, uma thread). Iterações ≈ 1,25·√q, q = (p−1)/2: cada +8 bits ≈ 16× mais tempo.</p>
+      <ul>
+        <li>Página <a href="attack.html">Ataque</a>: chave com p pequeno (8–64 bits), cifra, recupera x de (p, g, y).</li>
+        <li>Pollard rho: caminhada r-adding, ciclo de Brent, Montgomery 64 bits, em C → wasm.</li>
+        <li>O x recuperado vai para o Botan, que decifra a mensagem: a quebra é real.</li>
+        <li>Custo ≈ 1,25·√q iterações: cada +8 bits ≈ 16× mais tempo. Medido abaixo (<code>npm run bench</code>).</li>
+      </ul>
       <table>
         <thead><tr><th>bits de p</th><th>iterações</th><th>tempo</th><th>it/s</th><th>x certo</th></tr></thead>
         <tbody id="benchTable"></tbody>
@@ -81,8 +101,13 @@
 
     <fieldset class="dense">
       <legend>E se o atacante tiver um computador quântico?</legend>
-      <p>Pollard rho é exponencial; o algoritmo de <strong>Shor</strong> resolve o log discreto em tempo polinomial. ElGamal-2048, inviável hoje, cai em horas numa máquina quântica tolerante a falhas (milhões de qubits físicos, pelas estimativas atuais). Não dá para demonstrar isso aqui: simular Shor só funciona para p de poucos bits.</p>
-      <p>O que dá para fazer é trocar o esquema. O botão "ML-KEM · pós-quântico" no topo do <a href="pq.html">App</a> usa <strong>ML-KEM</strong> (FIPS 203, ex-Kyber, também do Botan): encapsula um segredo com a chave pública, HKDF deriva uma chave e AES-256/GCM cifra a mensagem. O contrato é o mesmo bytecode, numa segunda instância: continua guardando <code>bytes</code> sem saber qual esquema está por trás.</p>
+      <ul>
+        <li>Rho é exponencial; <strong>Shor</strong> resolve log discreto em tempo polinomial.</li>
+        <li>ElGamal-2048: 10^293 anos hoje, horas numa máquina quântica tolerante a falhas.</li>
+        <li>Não dá para demonstrar: simular Shor só funciona para p de poucos bits.</li>
+        <li>Resposta: trocar o esquema. <strong>ML-KEM</strong> (FIPS 203) + HKDF + AES-256/GCM, também do Botan.</li>
+        <li>Mesmo bytecode, segunda instância. O contrato continua guardando <code>bytes</code>.</li>
+      </ul>
       <table>
         <thead><tr><th>esquema</th><th>segurança</th><th>pub (B)</th><th>c1+c2 (B)</th><th>keygen</th><th>cifrar</th><th>decifrar</th><th>gas registro</th><th>gas envio</th></tr></thead>
         <tbody id="compareTable"></tbody>
