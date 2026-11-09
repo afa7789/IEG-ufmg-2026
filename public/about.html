@@ -67,7 +67,7 @@
       <pre id="demoLog">carregando log…</pre>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="dense">
       <legend>Quebrando: log discreto com Pollard rho</legend>
       <p>A página <a href="attack.html">Ataque</a> gera chaves ElGamal com p pequeno (8–64 bits, também pelo Botan), cifra, e recupera x a partir de (p, g, y) com Pollard rho (caminhada r-adding, ciclo de Brent, aritmética de Montgomery em C compilado para wasm). O x recuperado é entregue ao Botan, que decifra a mensagem: prova de que a quebra é real.</p>
       <p>Resultados de <code>npm run bench</code> (Chromium headless, uma thread). Iterações ≈ 1,25·√q, q = (p−1)/2: cada +8 bits ≈ 16× mais tempo.</p>
@@ -79,7 +79,7 @@
       <pre id="benchLog">carregando log…</pre>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="dense">
       <legend>E se o atacante tiver um computador quântico?</legend>
       <p>Pollard rho é exponencial; o algoritmo de <strong>Shor</strong> resolve o log discreto em tempo polinomial. ElGamal-2048, inviável hoje, cai em horas numa máquina quântica tolerante a falhas (milhões de qubits físicos, pelas estimativas atuais). Não dá para demonstrar isso aqui: simular Shor só funciona para p de poucos bits.</p>
       <p>O que dá para fazer é trocar o esquema. O botão "ML-KEM · pós-quântico" no topo do <a href="pq.html">App</a> usa <strong>ML-KEM</strong> (FIPS 203, ex-Kyber, também do Botan): encapsula um segredo com a chave pública, HKDF deriva uma chave e AES-256/GCM cifra a mensagem. O contrato é o mesmo bytecode, numa segunda instância: continua guardando <code>bytes</code> sem saber qual esquema está por trás.</p>

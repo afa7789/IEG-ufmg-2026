@@ -268,30 +268,35 @@ body.slides .slide-active {
   flex-direction: column;
   justify-content: center;
   min-height: 100vh;
-  padding: 10vh 8vw;
+  padding: 8vh 8vw;
   border: 0;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   line-height: 1.35;
 }
 body.slides main { display: block; }
 body.slides .hero.slide-active h1 { font-size: 6rem; }
 body.slides .hero.slide-active h2 { font-size: 2rem; max-width: 40ch; }
 body.slides .slide-active legend { font-size: 3.5rem; font-weight: 700; margin-bottom: 0.5em; float: left; width: 100%; }
-body.slides .slide-active p, body.slides .slide-active ol, body.slides .slide-active ul { max-width: 60ch; margin-bottom: 0.6em; }
-body.slides .slide-active table { font-size: 1.25rem; max-width: 70ch; }
+body.slides .slide-active p, body.slides .slide-active ol, body.slides .slide-active ul { max-width: 60ch; margin-bottom: 0.6em; font-size: 1.75rem; }
+body.slides .slide-active table { font-size: 1.5rem; max-width: 80ch; }
 body.slides .slide-active th { width: 12ch; }
-body.slides .slide-active pre { font-size: 1rem; max-height: 40vh; }
-body.slides .slide-active video { max-width: 80vw; max-height: 60vh; }
+body.slides .slide-active th, body.slides .slide-active td { padding: 10px 16px 10px 0; }
+body.slides .slide-active pre { font-size: 1.1rem; max-height: 40vh; }
+body.slides .slide-active video { max-width: 80vw; max-height: 55vh; width: auto; }
+body.slides #demoLog { display: none; }
 body.slides .slide-counter { display: block; position: fixed; right: 24px; bottom: 16px; font-weight: 600; opacity: 0.6; }
 body.slides .hero .hint { font-size: 1rem; }
 
 /* ---- Attack page + bench table in slides ---- */
 fieldset p.hint { display: block; }
-body.slides .slide-active table { font-size: 1rem; }
-body.slides .slide-active th, body.slides .slide-active td { padding: 4px 12px 4px 0; }
 body.slides #benchLog { display: none; }
-body.slides .slide-active p { font-size: 1.25rem; }
 body.slides .slide-hide { display: none; }
 body.slides .slide-active th { white-space: nowrap; }
 .scheme-switch { display: flex; align-items: center; gap: 16px; margin-top: 18px; }
 .scheme-switch .segmented button { margin: 0; }
+/* Slides densos (tabelas grandes): fonte menor para caber em uma tela */
+body.slides .slide-active.dense p { font-size: 1.25rem; max-width: 75ch; }
+body.slides .slide-active.dense table { font-size: 1.05rem; max-width: none; }
+body.slides .slide-active.dense th, body.slides .slide-active.dense td { padding: 3px 12px 3px 0; }
+body.slides .slide-active.dense { padding-top: 5vh; }
+body.slides .slide-active.dense legend { font-size: 2.75rem; }
