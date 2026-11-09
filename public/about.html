@@ -36,7 +36,7 @@
           <tr><th>Decifrar</th><td>m = c2 · (c1<sup>x</sup>)<sup>−1</sup> mod p.</td></tr>
         </tbody>
       </table>
-      <p>A mensagem UTF-8 vira um inteiro (big-endian) e precisa ser menor que p. Com p de 512 bits, cabem ~60 bytes.</p>
+      <p>Grupo fixo <code>modp/ietf/2048</code> (RFC 3526, g = 2). A mensagem UTF-8 vira um inteiro big-endian e precisa ser menor que p: cabem 255 bytes. A chave pública vai on-chain como DER (SubjectPublicKeyInfo, ~814 bytes, carrega p, g, y); o ciphertext é c1 ‖ c2 com 256 bytes cada.</p>
     </fieldset>
 
     <fieldset>
@@ -53,8 +53,8 @@
       <table>
         <tbody>
           <tr><th>Contrato</th><td>Solidity 0.8.20, Foundry. Deploy pela UI (viem) ou via <code>forge create</code>.</td></tr>
-          <tr><th>ElGamal</th><td>Biblioteca <code>elgamal</code> (npm, jsbn). Nenhuma aritmética modular escrita à mão.</td></tr>
-          <tr><th>Frontend</th><td>HTML/CSS/JS sem build; viem e elgamal via esm.sh. Hospedado no GitHub Pages.</td></tr>
+          <tr><th>ElGamal</th><td><a href="https://botan.randombit.net">Botan</a> 3.14 (C++) compilado para WebAssembly com Emscripten. Ponte em C (<code>wasm/bridge.c</code>) sobre a API FFI: keygen, encrypt, decrypt com padding <code>Raw</code>. Nenhuma aritmética modular escrita à mão.</td></tr>
+          <tr><th>Frontend</th><td>HTML/CSS/JS sem bundler; viem via esm.sh, ElGamal via <code>.wasm</code> local (768 KB). Hospedado no GitHub Pages.</td></tr>
           <tr><th>Redes</th><td>Anvil local (31337) e Sepolia (11155111).</td></tr>
         </tbody>
       </table>
@@ -64,7 +64,7 @@
       <legend>Limitações (de propósito)</legend>
       <ul>
         <li>ElGamal textbook: maleável, sem padding, sem segurança CCA. Serve para estudar o esquema, não para uso real.</li>
-        <li>p de 512 bits para gerar chave em milissegundos no navegador.</li>
+        <li>Padding <code>Raw</code>: o inteiro é a própria mensagem. Botan oferece OAEP, mas aqui o objetivo é ver o esquema cru.</li>
         <li>Chave privada no localStorage, em claro.</li>
         <li>Metadados (quem fala com quem, quando) são públicos na cadeia.</li>
       </ul>

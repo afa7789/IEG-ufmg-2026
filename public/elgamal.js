@@ -1,60 +1,99 @@
-// ElGamal textbook sobre Z_p* via biblioteca pronta (jsbn por baixo). Nada de aritmética modular manual aqui.
-import { Buffer } from 'https://esm.sh/node/buffer.mjs'
-import * as lib from 'https://esm.sh/elgamal@0.3.0?bundle'
-import { decodeAbiParameters, encodeAbiParameters } from 'https://esm.sh/viem@2.21.55'
+// ElGamal clássico (Z_p*) via Botan compilado para WebAssembly. A ponte C está em wasm/bridge.c.
+// Chaves em DER (hex). Chave pública on-chain = o próprio DER (SubjectPublicKeyInfo, carrega p, g, y).
+import createModule from './wasm/botan-elgamal.js'
 
-// O polyfill de crypto.randomBytes usado pela lib espera um Buffer global, como no Node.
-globalThis.Buffer ??= Buffer
-
-const ElGamal = lib.default.default ?? lib.default
-const { EncryptedValue, BigInt: JsBigInt } = lib
-
-const PUBKEY_ABI = [{ type: 'bytes' }, { type: 'bytes' }, { type: 'bytes' }]
-
-const evenHex = (hex) => (hex.length % 2 ? `0${hex}` : hex)
-export const biToHex = (bi) => `0x${evenHex(bi.toString(16))}`
-export const hexToBi = (hex) => new JsBigInt(hex.slice(2), 16)
-
-const utf8ToBi = (text) => {
-  const bytes = new TextEncoder().encode(text)
-  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
-  return new JsBigInt(hex, 16)
+const M = await createModule()
+const fn = {
+  keygen: M.cwrap('eg_keygen', 'number', ['string', 'number', 'number', 'number', 'number']),
+  fields: M.cwrap('eg_pub_fields', 'number', ['number', 'number', 'number', 'number', 'number', 'number']),
+  encrypt: M.cwrap('eg_encrypt', 'number', ['number', 'number', 'number', 'number', 'number', 'number']),
+  decrypt: M.cwrap('eg_decrypt', 'number', ['number', 'number', 'number', 'number', 'number', 'number']),
+  lastError: M.cwrap('eg_last_error', 'string', []),
 }
 
-const biToUtf8 = (bi) => {
-  const hex = evenHex(bi.toString(16))
-  const bytes = Uint8Array.from(hex.match(/../g) ?? [], (h) => parseInt(h, 16))
-  return new TextDecoder().decode(bytes)
-}
+const PTR = 4
 
+export const bytesToHex = (bytes) => `0x${Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')}`
+export const hexToBytes = (hex) => Uint8Array.from(hex.slice(2).match(/../g) ?? [], (h) => parseInt(h, 16))
 export const byteLength = (text) => new TextEncoder().encode(text).length
 
-// Chave serializada em hex para caber no localStorage: { p, g, y, x }.
-export async function keygen(bits) {
-  const k = await ElGamal.generateAsync(bits)
-  return { p: biToHex(k.p), g: biToHex(k.g), y: biToHex(k.y), x: biToHex(k.x) }
+// Buffer de entrada no heap wasm; `out` são slots (ponteiro + tamanho) preenchidos pelo C.
+function withHeap(run) {
+  const allocs = []
+  const push = (bytes) => {
+    const ptr = M._malloc(bytes.length || 1)
+    M.HEAPU8.set(bytes, ptr)
+    allocs.push(ptr)
+    return ptr
+  }
+  const slot = () => { const p = M._malloc(PTR); M.HEAPU8.fill(0, p, p + PTR); allocs.push(p); return p }
+  try { return run({ push, slot }) } finally { allocs.forEach((p) => M._free(p)) }
 }
 
-export const encodePubKey = ({ p, g, y }) => encodeAbiParameters(PUBKEY_ABI, [p, g, y])
+const deref = (slot) => M.getValue(slot, 'i32')
 
-export function decodePubKey(bytes) {
-  const [p, g, y] = decodeAbiParameters(PUBKEY_ABI, bytes)
-  return { p, g, y }
+// Lê (ptr, len) escritos pelo C, copia para o JS e libera no heap.
+function takeBytes(ptrSlot, lenSlot) {
+  const ptr = deref(ptrSlot)
+  const len = deref(lenSlot)
+  const out = M.HEAPU8.slice(ptr, ptr + len)
+  M._eg_free(ptr)
+  return out
 }
 
-// Limite de mensagem: m < p. Reservamos um byte para evitar m >= p.
-export const maxBytes = (pubKey) => Math.floor((pubKey.p.length - 2) / 2) - 1
+function takeString(ptrSlot) {
+  const ptr = deref(ptrSlot)
+  const s = M.UTF8ToString(ptr)
+  M._eg_free(ptr)
+  return s
+}
 
-export async function encrypt(pubKey, text) {
+const check = (rc) => { if (rc !== 0) throw new Error(`Botan: ${fn.lastError() || `erro ${rc}`}`) }
+
+// Chave serializada: { priv, pub } em hex DER + campos legíveis.
+export function keygen(group) {
+  return withHeap(({ slot }) => {
+    const [priv, privLen, pub, pubLen] = [slot(), slot(), slot(), slot()]
+    check(fn.keygen(group, priv, privLen, pub, pubLen))
+    const pubHex = bytesToHex(takeBytes(pub, pubLen))
+    return { priv: bytesToHex(takeBytes(priv, privLen)), pub: pubHex, ...decodePubKey(pubHex) }
+  })
+}
+
+export function decodePubKey(pubHex) {
+  return withHeap(({ push, slot }) => {
+    const der = hexToBytes(pubHex)
+    const [p, g, y, pBytes] = [slot(), slot(), slot(), slot()]
+    check(fn.fields(push(der), der.length, p, g, y, pBytes))
+    return { pub: pubHex, p: takeString(p), g: takeString(g), y: takeString(y), pBytes: deref(pBytes) }
+  })
+}
+
+export const encodePubKey = (key) => key.pub
+
+// Padding "Raw": m < p. Reservamos um byte.
+export const maxBytes = (pubKey) => pubKey.pBytes - 1
+
+export function encrypt(pubKey, text) {
   const limit = maxBytes(pubKey)
   if (byteLength(text) > limit) throw new Error(`Mensagem longa demais: máximo ${limit} bytes para esta chave`)
-  const eg = new ElGamal(hexToBi(pubKey.p), hexToBi(pubKey.g), hexToBi(pubKey.y), null)
-  const c = await eg.encryptAsync(utf8ToBi(text))
-  return { c1: biToHex(c.a), c2: biToHex(c.b) }
+  return withHeap(({ push, slot }) => {
+    const der = hexToBytes(pubKey.pub)
+    const msg = new TextEncoder().encode(text)
+    const [ct, ctLen] = [slot(), slot()]
+    check(fn.encrypt(push(der), der.length, push(msg), msg.length, ct, ctLen))
+    const bytes = takeBytes(ct, ctLen)
+    const half = bytes.length / 2
+    return { c1: bytesToHex(bytes.subarray(0, half)), c2: bytesToHex(bytes.subarray(half)) }
+  })
 }
 
-export async function decrypt(key, c1, c2) {
-  const eg = new ElGamal(hexToBi(key.p), hexToBi(key.g), hexToBi(key.y), hexToBi(key.x))
-  const m = await eg.decryptAsync(new EncryptedValue(hexToBi(c1), hexToBi(c2)))
-  return biToUtf8(m.bi)
+export function decrypt(key, c1, c2) {
+  return withHeap(({ push, slot }) => {
+    const der = hexToBytes(key.priv)
+    const ct = new Uint8Array([...hexToBytes(c1), ...hexToBytes(c2)])
+    const [pt, ptLen] = [slot(), slot()]
+    check(fn.decrypt(push(der), der.length, push(ct), ct.length, pt, ptLen))
+    return new TextDecoder().decode(takeBytes(pt, ptLen))
+  })
 }

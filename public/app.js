@@ -1,5 +1,5 @@
 import { formatEther, isAddress } from 'https://esm.sh/viem@2.21.55'
-import { CHAINS, KEY_BITS, chainById } from './config.js'
+import { CHAINS, DL_GROUP, chainById } from './config.js'
 import { balanceOf, clients, deploy, read, write } from './contract.js'
 import { el } from './dom.js'
 import { decodePubKey, decrypt, encodePubKey, encrypt, keygen } from './elgamal.js'
@@ -48,7 +48,8 @@ function walletText() {
 
 function keyText() {
   if (!state.key) return ''
-  return `p = ${short(state.key.p)}\ng = ${state.key.g}\ny = ${short(state.key.y)}\nx = (privada, ${(state.key.x.length - 2) / 2} bytes, no localStorage)`
+  const k = state.key
+  return `p = ${short(k.p)} (${k.pBytes * 8} bits)\ng = ${k.g}\ny = ${short(k.y)}\nDER pública = ${(k.pub.length - 2) / 2} bytes (vai on-chain) · DER privada = ${(k.priv.length - 2) / 2} bytes (localStorage)`
 }
 
 function render() {
@@ -72,8 +73,8 @@ function renderInbox() {
     const btn = el('button', 'secondary small', 'decifrar')
     btn.disabled = !state.key
     const cell = el('td', '', btn)
-    btn.addEventListener('click', async () => {
-      try { cell.textContent = await decrypt(state.key, m.c1, m.c2) } catch (e) { cell.textContent = `✕ ${e.message}` }
+    btn.addEventListener('click', () => {
+      try { cell.textContent = decrypt(state.key, m.c1, m.c2) } catch (e) { cell.textContent = `✕ ${e.message}` }
     })
     tbody.append(el('tr', '', el('td', '', String(i + 1)), el('td', '', short(m.sender, 6)), el('td', '', short(m.c1, 6)), el('td', '', short(m.c2, 6)), cell))
   })
@@ -145,8 +146,8 @@ async function doDeploy() {
 // ---- key ----
 
 async function doKeygen() {
-  log(`Gerando chave ElGamal de ${KEY_BITS} bits…`)
-  state.key = await keygen(KEY_BITS)
+  log(`Gerando chave ElGamal no grupo ${DL_GROUP}…`)
+  state.key = keygen(DL_GROUP)
   saveKey(state.chainId, state.address, state.key)
   log(`Chave gerada: y = ${short(state.key.y)}`)
   await syncRegistered()
@@ -169,7 +170,7 @@ async function doSend() {
   if (!text) throw new Error('Mensagem vazia')
   const pubBytes = await read(api(), state.contract, 'publicKeys', [to])
   if (pubBytes === '0x') throw new Error('Destinatário ainda não registrou chave pública')
-  const { c1, c2 } = await encrypt(decodePubKey(pubBytes), text)
+  const { c1, c2 } = encrypt(decodePubKey(pubBytes), text)
   $('sendView').textContent = `c1 = ${c1}\nc2 = ${c2}`
   log(`Mensagem cifrada (${(c1.length - 2) / 2} + ${(c2.length - 2) / 2} bytes), enviando…`)
   const hash = await write(api(), state.contract, 'sendMessage', [to, c1, c2])

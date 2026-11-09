@@ -2,3 +2,4 @@ node_modules/
 contracts/out/
 contracts/cache/
 .dagrobin/
+wasm/build/

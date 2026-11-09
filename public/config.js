@@ -7,8 +7,9 @@ export const CHAINS = [
 export const ANVIL = CHAINS[0]
 export const chainById = (id) => CHAINS.find((c) => c.id === id)
 
-export const KEY_BITS = 512
-export const MAX_MESSAGE_BYTES = 60
+// Grupo DL do Botan usado na geração de chaves (p de 2048 bits → mensagens de até 255 bytes).
+export const DL_GROUP = 'modp/ietf/2048'
+export const MAX_MESSAGE_BYTES = 200
 
 // Contas padrão do anvil (mnemonic "test test ... junk"). Chaves públicas e conhecidas: só para rede local.
 export const DEV_ACCOUNTS = [
