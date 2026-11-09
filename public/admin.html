@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ElGamal Inbox — Rede local</title>
+  <link rel="stylesheet" href="style.css">
+  <script>try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'green' } catch {}</script>
+</head>
+<body>
+  <header></header>
+
+  <section class="hero">
+    <h1>Rede local</h1>
+    <h2>Suba um Anvil, adicione na MetaMask, importe uma conta de teste e abasteça com ETH falso. Tudo em 127.0.0.1:8545.</h2>
+  </section>
+
+  <main>
+    <fieldset>
+      <legend>1. Subir o Anvil</legend>
+      <p class="hint">Requer <a href="https://getfoundry.sh">Foundry</a>. Chain id 31337, bloco a cada 2 s.</p>
+      <div id="commands"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. Status do RPC</legend>
+      <p><button id="ping" class="secondary">Verificar</button></p>
+      <p id="rpcState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset>
+      <legend>3. MetaMask</legend>
+      <p><button id="addChain">Adicionar Anvil na carteira</button></p>
+      <p class="hint">Depois importe uma conta de teste abaixo (chave privada → "Importar conta").</p>
+      <p id="chainState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset>
+      <legend>4. Faucet</legend>
+      <p>
+        <label>Endereço <input id="faucetAddr" size="44" placeholder="0x…" spellcheck="false"></label>
+        <button id="faucet">Dar 100 ETH</button>
+        <button id="balance" class="secondary">Ver saldo</button>
+      </p>
+      <p class="hint">Usa <code>anvil_setBalance</code> direto no RPC. Só funciona em rede local.</p>
+      <p id="faucetState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset>
+      <legend>5. Contas de teste</legend>
+      <p class="hint">Mnemonic padrão do anvil. Públicas e conhecidas: nunca use fora da rede local.</p>
+      <table>
+        <thead><tr><th>#</th><th>Endereço</th><th>Chave privada</th></tr></thead>
+        <tbody id="accounts"></tbody>
+      </table>
+    </fieldset>
+  </main>
+
+  <aside>
+    <div>
+      <h2 class="section">Log</h2>
+      <pre id="log"></pre>
+    </div>
+  </aside>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ElGamal Inbox</title>
+  <link rel="stylesheet" href="style.css">
+  <script>try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'green' } catch {}</script>
+</head>
+<body>
+  <header></header>
+
+  <section class="hero">
+    <h1>ElGamal Inbox</h1>
+    <h2>Mensagens cifradas com ElGamal clássico (Z<sub>p</sub><sup>*</sup>). A matemática roda no navegador; o contrato só guarda chaves públicas e ciphertexts.</h2>
+  </section>
+
+  <main>
+    <fieldset id="stepWallet" class="step">
+      <legend>1. Carteira e rede</legend>
+      <p>
+        <label>Carteira <select id="injected"></select></label>
+        <button id="connect">Conectar</button>
+        <label>Rede <select id="chain"></select></label>
+      </p>
+      <p id="walletState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepContract" class="step">
+      <legend>2. Contrato <span class="lock">conecte a carteira</span></legend>
+      <p>
+        <label>Endereço do MessageInbox <input id="contractAddr" size="44" placeholder="0x…" spellcheck="false"></label>
+        <button id="useContract" class="secondary">Usar este</button>
+        <button id="deploy">Deploy novo</button>
+      </p>
+      <p class="hint">Salvo no localStorage por rede. Na Sepolia já existe um default.</p>
+      <p id="contractState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepKey" class="step">
+      <legend>3. Minha chave ElGamal <span class="lock">escolha o contrato</span></legend>
+      <p>
+        <button id="keygen">Gerar chave</button>
+        <button id="register">Registrar chave pública on-chain</button>
+      </p>
+      <p class="hint">Chave privada x fica no localStorage deste navegador (demo acadêmica, sem proteção).</p>
+      <pre id="keyView"></pre>
+      <p id="keyState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepSend" class="step">
+      <legend>4. Enviar mensagem <span class="lock">registre sua chave</span></legend>
+      <p>
+        <label>Destinatário <input id="to" size="44" placeholder="0x…" spellcheck="false"></label>
+      </p>
+      <p>
+        <label>Mensagem <input id="message" size="60" maxlength="60" placeholder="até 60 bytes"></label>
+        <button id="send">Cifrar e enviar</button>
+      </p>
+      <pre id="sendView"></pre>
+      <p class="error" role="alert"></p>
+    </fieldset>
+
+    <fieldset id="stepInbox" class="step">
+      <legend>5. Caixa de entrada <span class="lock">registre sua chave</span></legend>
+      <p><button id="refresh" class="secondary">Atualizar</button></p>
+      <table>
+        <thead><tr><th>#</th><th>De</th><th>c1</th><th>c2</th><th>Texto</th></tr></thead>
+        <tbody id="inbox"></tbody>
+      </table>
+      <p id="inboxState" class="feedback" role="status"></p>
+      <p class="error" role="alert"></p>
+    </fieldset>
+  </main>
+
+  <aside>
+    <div>
+      <h2 class="section">Progresso</h2>
+      <ol class="progress">
+        <li data-step="stepWallet">Carteira</li>
+        <li data-step="stepContract">Contrato</li>
+        <li data-step="stepKey">Chave</li>
+        <li data-step="stepSend">Enviar</li>
+        <li data-step="stepInbox">Inbox</li>
+      </ol>
+      <h2 class="section">Log</h2>
+      <pre id="log"></pre>
+    </div>
+  </aside>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

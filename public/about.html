@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ElGamal Inbox — Sobre</title>
+  <link rel="stylesheet" href="style.css">
+  <script>try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'green' } catch {}</script>
+</head>
+<body>
+  <header></header>
+
+  <section class="hero">
+    <h1>Sobre o projeto</h1>
+    <h2>Criptografia 2026/2 · DCC/ICEx/UFMG · Prof. Jeroen van de Graaf · Projeto de implementação.</h2>
+  </section>
+
+  <main class="prose">
+    <fieldset>
+      <legend>Ideia</legend>
+      <p>Uma caixa de entrada pública onde qualquer pessoa pode deixar uma mensagem que só o destinatário lê. O blockchain (Ethereum) serve como <strong>registro de chaves públicas</strong> e <strong>canal de entrega</strong>; a confidencialidade vem inteiramente do ElGamal, executado fora da cadeia.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>On-chain vs off-chain</legend>
+      <p>O contrato <code>MessageInbox</code> não sabe o que é ElGamal. Ele guarda <code>bytes</code>: uma chave pública por endereço e uma lista de pares <code>(c1, c2)</code> por destinatário. Geração de chaves, cifragem e decifragem acontecem no navegador. Trocar o esquema (por exemplo, para EC-ElGamal) não exige mudar o contrato.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>ElGamal clássico</legend>
+      <p>Grupo multiplicativo Z<sub>p</sub><sup>*</sup>, p primo seguro, gerador g.</p>
+      <table>
+        <tbody>
+          <tr><th>Chaves</th><td>x aleatório em [1, p−2]; y = g<sup>x</sup> mod p. Pública: (p, g, y). Privada: x.</td></tr>
+          <tr><th>Cifrar m</th><td>k aleatório; c1 = g<sup>k</sup> mod p; c2 = m · y<sup>k</sup> mod p.</td></tr>
+          <tr><th>Decifrar</th><td>m = c2 · (c1<sup>x</sup>)<sup>−1</sup> mod p.</td></tr>
+        </tbody>
+      </table>
+      <p>A mensagem UTF-8 vira um inteiro (big-endian) e precisa ser menor que p. Com p de 512 bits, cabem ~60 bytes.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Fluxo</legend>
+      <ol>
+        <li>Alice gera (p, g, y, x) e registra (p, g, y) ABI-codificados em <code>registerPublicKey</code>.</li>
+        <li>Bob lê <code>publicKeys(alice)</code>, cifra localmente e chama <code>sendMessage(alice, c1, c2)</code>.</li>
+        <li>Alice lê <code>getMessages(alice)</code> e decifra com x, que nunca saiu do navegador dela.</li>
+      </ol>
+    </fieldset>
+
+    <fieldset>
+      <legend>Stack</legend>
+      <table>
+        <tbody>
+          <tr><th>Contrato</th><td>Solidity 0.8.20, Foundry. Deploy pela UI (viem) ou via <code>forge create</code>.</td></tr>
+          <tr><th>ElGamal</th><td>Biblioteca <code>elgamal</code> (npm, jsbn). Nenhuma aritmética modular escrita à mão.</td></tr>
+          <tr><th>Frontend</th><td>HTML/CSS/JS sem build; viem e elgamal via esm.sh. Hospedado no GitHub Pages.</td></tr>
+          <tr><th>Redes</th><td>Anvil local (31337) e Sepolia (11155111).</td></tr>
+        </tbody>
+      </table>
+    </fieldset>
+
+    <fieldset>
+      <legend>Limitações (de propósito)</legend>
+      <ul>
+        <li>ElGamal textbook: maleável, sem padding, sem segurança CCA. Serve para estudar o esquema, não para uso real.</li>
+        <li>p de 512 bits para gerar chave em milissegundos no navegador.</li>
+        <li>Chave privada no localStorage, em claro.</li>
+        <li>Metadados (quem fala com quem, quando) são públicos na cadeia.</li>
+      </ul>
+    </fieldset>
+  </main>
+
+  <aside></aside>
+  <script type="module">
+    import { renderHeader } from './ui.js'
+    renderHeader('about.html')
+  </script>
+</body>
+</html>
