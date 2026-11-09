@@ -1,16 +1,16 @@
 [  0.4s] anvil (31337) e servidor (8080) no ar
-[  2.4s] ✔ Alice conectada: 0xf39Fd6…b92266 · 9999.9909 ETH · Anvil (local)
-[  3.4s] ✔ Deploy do MessageInbox em 0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6
-[  4.3s] ✔ Chave gerada (Botan/wasm): p = 0xFFFFFFFFFF…FFFFFFFFFF (2048 bits)
-[  5.3s] ✔ Chave pública registrada on-chain
-[  6.2s] ✔ Backup baixado: elgamal-key-31337-f39Fd6e5.txt
-[  8.0s] ✔ Storage apagado: chave sumiu
-[  9.0s] ✔ Chave importada do .txt e reconhecida como registrada
-[  9.9s] ✔ Troca para Bob: 0x709979…dc79C8 · 9999.9972 ETH · Anvil (local)
-[ 10.9s] ✔ Diretório: 1 endereço(s) com chave registrada; "usar" preencheu o destinatário
-[ 11.8s] ✔ Bob salvou Alice nos contatos
-[ 12.8s] ✔ Bob cifrou e enviou: c1 = 0x3e1017b2177dcaad8249113c5492b1aad1a85b05359966e05ca57…
-[ 13.8s] ✔ Troca de volta para Alice
-[ 14.8s] ✔ Inbox: 1 mensagem(ns), de "Bob (0x7099…79C8)"
-[ 15.7s] ✔ Alice decifrou: "Oi Alice, o projeto de cripto ta pronto!"
-[ 18.4s] RESULTADO: OK — fluxo Alice → Bob → Alice completo em Anvil (elgamal)
+[  2.1s] ✔ Alice conectada: 0xf39Fd6…b92266 · 9999.9775 ETH · Anvil (local)
+[  3.0s] ✔ Deploy do MessageInbox em 0x4a679253410272dd5232b3ff7cf5dbb88f295319
+[  4.0s] ✔ Chave gerada (Botan/wasm): p = 0xFFFFFFFFFF…FFFFFFFFFF (2048 bits)
+[  4.9s] ✔ Chave pública registrada on-chain
+[  5.8s] ✔ Backup baixado: elgamal-key-31337-f39Fd6e5.txt
+[  7.7s] ✔ Storage apagado: chave sumiu
+[  8.6s] ✔ Chave importada do .txt e reconhecida como registrada
+[  9.5s] ✔ Troca para Bob: 0x709979…dc79C8 · 9999.9933 ETH · Anvil (local)
+[ 10.5s] ✔ Diretório: 1 endereço(s) com chave registrada; "usar" preencheu o destinatário
+[ 11.5s] ✔ Bob salvou Alice nos contatos
+[ 12.5s] ✔ Bob cifrou e enviou: c1 = 0xfd521e706f5ed674d027a5148f6a5ede1667e82f3f8e4937828fb…
+[ 13.4s] ✔ Troca de volta para Alice
+[ 14.4s] ✔ Inbox: 1 mensagem(ns), de "Bob (0x7099…79C8)"
+[ 15.3s] ✔ Alice decifrou: "Oi Alice, o projeto de cripto ta pronto!"
+[ 18.0s] RESULTADO: OK — fluxo Alice → Bob → Alice completo em Anvil (elgamal)

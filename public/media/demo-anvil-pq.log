@@ -1,16 +1,16 @@
 [  0.4s] anvil (31337) e servidor (8080) no ar
-[  2.0s] ✔ Alice conectada: 0xf39Fd6…b92266 · 9999.9808 ETH · Anvil (local)
-[  2.9s] ✔ Deploy do MessageInbox em 0x59b670e9fa9d0a427751af201d676719a970857b
-[  3.8s] ✔ Chave gerada (Botan/wasm): ML-KEM-768
-[  4.8s] ✔ Chave pública registrada on-chain
-[  5.7s] ✔ Backup baixado: mlkem-key-31337-f39Fd6e5.txt
-[  7.5s] ✔ Storage apagado: chave sumiu
-[  8.5s] ✔ Chave importada do .txt e reconhecida como registrada
-[  9.4s] ✔ Troca para Bob: 0x709979…dc79C8 · 9999.9966 ETH · Anvil (local)
-[ 10.4s] ✔ Diretório: 1 endereço(s) com chave registrada; "usar" preencheu o destinatário
-[ 11.3s] ✔ Bob salvou Alice nos contatos
-[ 12.3s] ✔ Bob cifrou e enviou: c1 = 0xe8f0bb569e0642139091d8efa5528fa59b39ac8c59f928cd1829d…
-[ 13.2s] ✔ Troca de volta para Alice
-[ 14.2s] ✔ Inbox: 1 mensagem(ns), de "Bob (0x7099…79C8)"
-[ 15.1s] ✔ Alice decifrou: "Oi Alice, o projeto de cripto ta pronto!"
-[ 17.8s] RESULTADO: OK — fluxo Alice → Bob → Alice completo em Anvil (mlkem)
+[  2.1s] ✔ Alice conectada: 0xf39Fd6…b92266 · 9999.9761 ETH · Anvil (local)
+[  3.1s] ✔ Deploy do MessageInbox em 0x09635f643e140090a9a8dcd712ed6285858cebef
+[  4.0s] ✔ Chave gerada (Botan/wasm): ML-KEM-768
+[  5.0s] ✔ Chave pública registrada on-chain
+[  5.9s] ✔ Backup baixado: mlkem-key-31337-f39Fd6e5.txt
+[  7.7s] ✔ Storage apagado: chave sumiu
+[  8.6s] ✔ Chave importada do .txt e reconhecida como registrada
+[  9.5s] ✔ Troca para Bob: 0x709979…dc79C8 · 9999.9928 ETH · Anvil (local)
+[ 10.5s] ✔ Diretório: 1 endereço(s) com chave registrada; "usar" preencheu o destinatário
+[ 11.5s] ✔ Bob salvou Alice nos contatos
+[ 12.5s] ✔ Bob cifrou e enviou: c1 = 0xfbb9b48e6becb8ee3abb63d7b85db09de12df95c2431e6ca01b23…
+[ 13.4s] ✔ Troca de volta para Alice
+[ 14.4s] ✔ Inbox: 1 mensagem(ns), de "Bob (0x7099…79C8)"
+[ 15.3s] ✔ Alice decifrou: "Oi Alice, o projeto de cripto ta pronto!"
+[ 18.0s] RESULTADO: OK — fluxo Alice → Bob → Alice completo em Anvil (mlkem)
