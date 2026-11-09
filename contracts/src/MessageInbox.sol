@@ -14,11 +14,16 @@ contract MessageInbox {
     // Armazena as mensagens recebidas por cada endereço
     mapping(address => Message[]) public inboxes;
 
+    // Quem já registrou chave, em ordem de registro (diretório enumerável sem varrer eventos)
+    address[] private users;
+
     event PublicKeyRegistered(address indexed user);
     event MessageSent(address indexed from, address indexed to);
 
     // 1. Usuário registra sua chave pública
     function registerPublicKey(bytes calldata pubKey) external {
+        require(pubKey.length > 0, "Empty public key");
+        if (publicKeys[msg.sender].length == 0) users.push(msg.sender);
         publicKeys[msg.sender] = pubKey;
         emit PublicKeyRegistered(msg.sender);
     }
@@ -39,5 +44,10 @@ contract MessageInbox {
     // 3. Usuário lê sua própria caixa de entrada
     function getMessages(address user) external view returns (Message[] memory) {
         return inboxes[user];
+    }
+
+    // 4. Diretório: todos que já registraram chave pública
+    function getUsers() external view returns (address[] memory) {
+        return users;
     }
 }

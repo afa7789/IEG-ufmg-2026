@@ -31,6 +31,7 @@
       <p>
         <label>Endereço do MessageInbox <input id="contractAddr" size="44" placeholder="0x…" spellcheck="false"></label>
         <button id="useContract" class="secondary">Usar este</button>
+        <button id="useDefault" class="secondary">Default da rede</button>
         <button id="deploy">Deploy novo</button>
       </p>
       <p class="hint">Salvo no localStorage por rede. Na Sepolia já existe um default.</p>
@@ -63,6 +64,15 @@
         <button id="removeContact" class="secondary">Remover</button>
       </p>
       <p class="hint">Contatos ficam no localStorage e valem em todas as redes. O apelido aparece na caixa de entrada.</p>
+      <details>
+        <summary>Quem já registrou chave neste contrato</summary>
+        <p><button id="scan" class="secondary">Buscar no contrato</button></p>
+        <table>
+          <thead><tr><th>#</th><th>Endereço</th><th>Apelido</th><th></th></tr></thead>
+          <tbody id="directory"></tbody>
+        </table>
+        <p id="directoryState" class="feedback" role="status"></p>
+      </details>
       <p>
         <label>Mensagem <input id="message" size="60" maxlength="200" placeholder="até 200 bytes"></label>
         <button id="send">Cifrar e enviar</button>

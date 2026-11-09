@@ -7,7 +7,7 @@ Toda a criptografia roda no navegador: **Botan (C++) compilado para WebAssembly*
 Projeto da disciplina Criptografia 2026/2, DCC/ICEx/UFMG (Prof. Jeroen van de Graaf).
 
 - **Demo:** https://afa7789.github.io/IEG-ufmg-2026/
-- **Contrato na Sepolia:** [`0xC1305cE473067917CDBF9F1584422f48b965c202`](https://sepolia.etherscan.io/address/0xC1305cE473067917CDBF9F1584422f48b965c202)
+- **Contrato na Sepolia:** [`0x5641e5ec07332023b8354f96a36e7986B482656c`](https://sepolia.etherscan.io/address/0x5641e5ec07332023b8354f96a36e7986B482656c)
 
 ## Como rodar
 
@@ -25,7 +25,7 @@ anvil --chain-id 31337 --block-time 2
 Na página **Rede local** há os comandos, um botão para adicionar o Anvil na MetaMask, faucet e as contas de teste.
 Na página **App**: conectar → escolher ou deployar o contrato → gerar e registrar a chave → enviar → ler a inbox.
 A chave privada fica no `localStorage` do navegador. **Baixe o backup (.txt)** no passo 3; o mesmo arquivo restaura a chave em outro navegador via "Importar".
-No passo 4 dá para salvar destinatários com apelido (também em `localStorage`); o apelido aparece na caixa de entrada.
+No passo 4 dá para salvar destinatários com apelido (também em `localStorage`); o apelido aparece na caixa de entrada. "Buscar no contrato" lista quem já registrou chave (`getUsers()`), para descobrir destinatários.
 
 Recompilar o contrato e atualizar o ABI usado pela página:
 
@@ -44,7 +44,7 @@ brew install emscripten
 
 | Caminho | Papel |
 |---|---|
-| `contracts/src/MessageInbox.sol` | Registry de chaves públicas + inbox. Não conhece ElGamal. |
+| `contracts/src/MessageInbox.sol` | Registry de chaves públicas + inbox + `getUsers()` (diretório de quem registrou). Não conhece ElGamal. |
 | `wasm/bridge.c` | Ponte C sobre a FFI do [Botan](https://botan.randombit.net): `eg_keygen`, `eg_encrypt`, `eg_decrypt`, `eg_pub_fields`. RNG vem de `crypto.getRandomValues`. |
 | `public/wasm/` | `botan-elgamal.wasm` (768 KB) + glue Emscripten, gerados por `wasm/build.sh` e commitados. |
 | `public/elgamal.js` | Wrapper JS: heap, ponteiros, hex. Chave pública on-chain = DER SubjectPublicKeyInfo (p, g, y). |
@@ -67,6 +67,6 @@ Sem bundler: viem vem do esm.sh; o ElGamal é o `.wasm` local. GitHub Pages publ
 - Botan compila com `-fwasm-exceptions`; o link da ponte falhava até repetir a flag.
 - O RNG do Botan precisa de entropia: resolvido com `botan_rng_init_custom` chamando `crypto.getRandomValues` via `EM_JS`.
 
-**Desvios.** Hardhat foi trocado por Foundry (anvil já era requisito). O script CLI virou a própria UI. Grupo fixo `modp/ietf/2048` em vez de gerar p por chave.
+**Desvios.** Hardhat foi trocado por Foundry (anvil já era requisito). O script CLI virou a própria UI. Grupo fixo `modp/ietf/2048` em vez de gerar p por chave. O contrato ganhou `getUsers()`: varrer eventos `PublicKeyRegistered` via `eth_getLogs` em RPC público travava com janelas grandes; um array on-chain resolve com uma chamada.
 
 **Limitações assumidas.** ElGamal textbook com padding `Raw` (maleável, sem CCA), chave privada em `localStorage` e no `.txt` de backup em claro, metadados públicos na cadeia. É material de estudo, não um produto.

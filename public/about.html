@@ -22,7 +22,7 @@
 
     <fieldset>
       <legend>On-chain vs off-chain</legend>
-      <p>O contrato <code>MessageInbox</code> não sabe o que é ElGamal. Ele guarda <code>bytes</code>: uma chave pública por endereço e uma lista de pares <code>(c1, c2)</code> por destinatário. Geração de chaves, cifragem e decifragem acontecem no navegador. Trocar o esquema (por exemplo, para EC-ElGamal) não exige mudar o contrato.</p>
+      <p>O contrato <code>MessageInbox</code> não sabe o que é ElGamal. Ele guarda <code>bytes</code>: uma chave pública por endereço, uma lista de pares <code>(c1, c2)</code> por destinatário e a lista de quem já registrou (<code>getUsers()</code>, para descobrir destinatários sem varrer eventos). Geração de chaves, cifragem e decifragem acontecem no navegador. Trocar o esquema (por exemplo, para EC-ElGamal) não exige mudar o contrato.</p>
     </fieldset>
 
     <fieldset>

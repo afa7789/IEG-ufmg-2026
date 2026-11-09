@@ -1,7 +1,7 @@
 // Redes suportadas. `contract` é o endereço default; o usuário pode sobrescrever (deploy pela UI → localStorage).
 export const CHAINS = [
   { id: 31337, name: 'Anvil (local)', rpc: 'http://127.0.0.1:8545', explorer: null, contract: null },
-  { id: 11155111, name: 'Sepolia', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', explorer: 'https://sepolia.etherscan.io', contract: '0xC1305cE473067917CDBF9F1584422f48b965c202' },
+  { id: 11155111, name: 'Sepolia', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', explorer: 'https://sepolia.etherscan.io', contract: '0x5641e5ec07332023b8354f96a36e7986B482656c' },
 ]
 
 export const ANVIL = CHAINS[0]

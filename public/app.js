@@ -7,7 +7,7 @@ import { loadContacts, loadContract, loadKey, saveContacts, saveContract, saveKe
 import { $, log, on, renderHeader, short } from './ui.js'
 import { connect, discoverInjected, switchChain } from './wallets.js'
 
-const state = { providers: [], provider: null, address: null, chainId: null, balance: null, contract: null, key: null, registered: false, messages: [], contacts: loadContacts() }
+const state = { providers: [], provider: null, address: null, chainId: null, balance: null, contract: null, key: null, registered: false, messages: [], users: [], contacts: loadContacts() }
 
 const chain = () => chainById(state.chainId)
 const api = () => clients(state.provider, chain(), state.address)
@@ -64,6 +64,7 @@ function render() {
   $('register').disabled = !state.key
   $('download').disabled = !state.key
   renderContacts()
+  renderDirectory()
   renderInbox()
   renderSteps()
 }
@@ -77,6 +78,19 @@ function renderContacts() {
   sel.replaceChildren(Object.assign(el('option', '', '—'), { value: '' }))
   for (const c of state.contacts) sel.append(Object.assign(el('option', '', `${c.alias} · ${short(c.address, 4)}`), { value: c.address }))
   sel.value = state.contacts.some((c) => c.address === current) ? current : ''
+}
+
+function renderDirectory() {
+  const tbody = $('directory')
+  tbody.replaceChildren()
+  state.users.forEach((u, i) => {
+    const me = u.toLowerCase() === state.address?.toLowerCase()
+    const use = el('button', 'secondary small', 'usar')
+    use.disabled = me
+    use.addEventListener('click', () => { $('to').value = u; $('alias').value = aliasOf(u) ?? ''; $('alias').focus() })
+    tbody.append(el('tr', '', el('td', '', String(i + 1)), el('td', '', u), el('td', '', me ? 'você' : (aliasOf(u) ?? '—')), el('td', '', use)))
+  })
+  $('directoryState').textContent = state.users.length ? `${state.users.length} endereço(s) com chave registrada` : ''
 }
 
 function renderInbox() {
@@ -101,6 +115,7 @@ async function syncChainState() {
   state.contract = c ? (loadContract(state.chainId) ?? c.contract) : null
   state.key = c ? loadKey(state.chainId, state.address) : null
   state.messages = []
+  state.users = []
   state.registered = false
   state.balance = c ? await balanceOf(api(), state.address) : null
   if (ready()) await syncRegistered()
@@ -144,6 +159,15 @@ function useContract() {
   saveContract(state.chainId, addr)
   state.contract = addr
   log(`Contrato definido: ${addr}`)
+  return syncChainState()
+}
+
+function useDefault() {
+  const addr = chain().contract
+  if (!addr) throw new Error(`${chain().name} não tem contrato default: faça deploy`)
+  saveContract(state.chainId, null)
+  state.contract = addr
+  log(`Contrato default da rede: ${addr}`)
   return syncChainState()
 }
 
@@ -268,6 +292,11 @@ async function doSend() {
   $('message').value = ''
 }
 
+async function doScan() {
+  state.users = await read(api(), state.contract, 'getUsers', [])
+  log(`Diretório: ${state.users.length} endereço(s) registrados`)
+}
+
 async function doRefresh() {
   state.messages = await read(api(), state.contract, 'getMessages', [state.address])
   log(`Inbox: ${state.messages.length} mensagem(ns)`)
@@ -289,6 +318,7 @@ async function init() {
 
   on('connect', doConnect, render)
   on('useContract', useContract, render)
+  on('useDefault', useDefault, render)
   on('deploy', doDeploy, render)
   on('keygen', doKeygen, render)
   on('register', doRegister, render)
@@ -304,6 +334,7 @@ async function init() {
   on('removeContact', removeContact, render)
   $('contacts').addEventListener('change', pickContact)
   on('refresh', doRefresh, render)
+  on('scan', doScan, render)
   render()
 }
 
