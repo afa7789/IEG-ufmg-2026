@@ -214,7 +214,7 @@ const KEY_FIELDS = ['priv', 'pub']
 function keyFileText() {
   const k = state.key
   return [
-    `ElGamal Inbox — chave privada ${scheme.label} (backup). Quem tiver este arquivo lê suas mensagens.`,
+    `Inbox Cifrada — chave privada ${scheme.label} (backup). Quem tiver este arquivo lê suas mensagens.`,
     `esquema: ${scheme.id}`,
     `rede: ${state.chainId} (${chain().name})`,
     `endereco: ${state.address}`,

@@ -1,6 +1,6 @@
-# ElGamal Inbox
+# Inbox Cifrada
 
-Mensagens cifradas com **ElGamal clássico (Z<sub>p</sub><sup>*</sup>)** entregues por um contrato Ethereum.
+Caixa de entrada pública num contrato Ethereum: qualquer um deposita, só o destinatário lê. Dois esquemas sobre o mesmo contrato: **ElGamal clássico (Z<sub>p</sub><sup>*</sup>)** e **ML-KEM (pós-quântico)**.
 O contrato só guarda `bytes` (chave pública por endereço, lista de `(c1, c2)` por destinatário).
 Toda a criptografia roda no navegador: **Botan (C++) compilado para WebAssembly**, com uma ponte em C. Tem também uma **versão pós-quântica** (ML-KEM + AES-GCM) sobre o mesmo contrato, e um **ataque** (Pollard rho) que quebra chaves pequenas.
 
