@@ -11,7 +11,7 @@
 
   <section class="hero">
     <h1>Versão pós-quântica</h1>
-    <h2>Mesmo app, mesmo contrato, outro esquema: <strong>ML-KEM</strong> (FIPS 203, ex-Kyber) encapsula um segredo, HKDF deriva a chave e AES-256/GCM cifra a mensagem. Sem log discreto para o algoritmo de Shor atacar. O contrato nem percebe: continua guardando <code>bytes</code>.</h2>
+    <h2>Mesmo app, mesmo contrato, outro esquema: <strong>ML-KEM</strong> (FIPS 203, ex-Kyber, baseado em reticulados) encapsula um segredo, HKDF deriva a chave e AES-256/GCM cifra a mensagem (cifra híbrida, KEM-DEM). Sem log discreto para o algoritmo de Shor atacar. O contrato nem percebe: continua guardando <code>bytes</code>.</h2>
     <p class="scheme-switch">
       <span class="hint">Esquema</span>
       <span class="segmented">
@@ -42,7 +42,7 @@
         <button id="useDefault" class="secondary">Default da rede</button>
         <button id="deploy">Deploy novo</button>
       </p>
-      <p class="hint">Instância separada da usada pelo ElGamal (a chave pública on-chain é um slot por endereço). Na Sepolia já existe um default.</p>
+      <p class="hint">Instância separada da usada pelo ElGamal (o contrato guarda uma única chave pública por endereço). Na Sepolia já existe um default.</p>
       <p id="contractState" class="feedback" role="status"></p>
       <p class="error" role="alert"></p>
     </fieldset>
@@ -102,7 +102,7 @@
     </fieldset>
     <fieldset id="stepCompare">
       <legend>6. Comparação de esquemas</legend>
-      <p class="hint">Mede no seu navegador: tamanho da chave pública (vai on-chain), do ciphertext por mensagem de 32 bytes, tempos, e estima o gas de <code>registerPublicKey</code> + <code>sendMessage</code> (16 gas/byte de calldata + 20 000 por slot de 32 bytes gravado).</p>
+      <p class="hint">Mede no seu navegador: tamanho da chave pública (vai on-chain), do texto cifrado para uma mensagem de 32 bytes, tempos, e estima o gas de <code>registerPublicKey</code> + <code>sendMessage</code> (16 gas/byte de calldata + 20 000 por slot de 32 bytes gravado).</p>
       <p><button id="compare" class="secondary">Medir</button></p>
       <table>
         <thead><tr><th>esquema</th><th>segurança</th><th>pub (B)</th><th>priv (B)</th><th>c1+c2 (B)</th><th>keygen</th><th>cifrar</th><th>decifrar</th><th>gas registro ≈</th><th>gas envio ≈</th></tr></thead>

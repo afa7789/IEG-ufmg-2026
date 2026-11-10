@@ -39,26 +39,27 @@
 
     <fieldset>
       <legend>ElGamal clássico</legend>
-      <p>Grupo multiplicativo Z<sub>p</sub><sup>*</sup>, p primo seguro, gerador g.</p>
+      <p>Subgrupo de ordem prima q de Z<sub>p</sub><sup>*</sup>; p = 2q + 1 primo seguro; g gera o subgrupo.</p>
       <table>
         <tbody>
-          <tr><th>Chaves</th><td>x aleatório em [1, p−2]; y = g<sup>x</sup> mod p. Pública: (p, g, y). Privada: x.</td></tr>
-          <tr><th>Cifrar m</th><td>k aleatório; c1 = g<sup>k</sup> mod p; c2 = m · y<sup>k</sup> mod p.</td></tr>
+          <tr><th>Chaves</th><td>x aleatório em [1, q−1]; y = g<sup>x</sup> mod p. Pública: (p, g, y). Privada: x.</td></tr>
+          <tr><th>Cifrar m</th><td>k aleatório (efêmero); c1 = g<sup>k</sup> mod p; c2 = m · y<sup>k</sup> mod p.</td></tr>
           <tr><th>Decifrar</th><td>m = c2 · (c1<sup>x</sup>)<sup>−1</sup> mod p.</td></tr>
         </tbody>
       </table>
       <ul>
-        <li>Grupo fixo <code>modp/ietf/2048</code> (RFC 3526, g = 2).</li>
+        <li>Grupo fixo <code>modp/ietf/2048</code> (RFC 3526, g = 2, de ordem q).</li>
+        <li class="slide-hide">Na prática o Botan sorteia x como expoente curto (~225 bits), não em todo [1, q−1].</li>
         <li>Mensagem UTF-8 vira inteiro big-endian menor que p: até 255 bytes.</li>
-        <li>Chave pública on-chain em DER (~814 bytes, carrega p, g, y).</li>
-        <li>Ciphertext = c1 ‖ c2, 256 bytes cada.</li>
+        <li>Chave pública on-chain em DER (813 bytes, carrega p, q, g, y).</li>
+        <li>Texto cifrado = c1 ‖ c2, 256 bytes cada.</li>
       </ul>
     </fieldset>
 
     <fieldset>
       <legend>Fluxo</legend>
       <ol>
-        <li>Alice gera (p, g, y, x) e registra (p, g, y) ABI-codificados em <code>registerPublicKey</code>.</li>
+        <li>Alice sorteia x, calcula y = g<sup>x</sup> mod p e registra a chave pública (DER) com <code>registerPublicKey</code>.</li>
         <li>Bob lê <code>publicKeys(alice)</code>, cifra localmente e chama <code>sendMessage(alice, c1, c2)</code>.</li>
         <li>Alice lê <code>getMessages(alice)</code> e decifra com x, que nunca saiu do navegador dela.</li>
       </ol>
@@ -69,8 +70,8 @@
       <table>
         <tbody>
           <tr><th>Contrato</th><td>Solidity 0.8.20, Foundry. Deploy pela UI (viem) ou via <code>forge create</code>.</td></tr>
-          <tr><th>ElGamal</th><td><a href="https://botan.randombit.net">Botan</a> 3.14 (C++) compilado para WebAssembly com Emscripten. Ponte em C (<code>wasm/bridge.c</code>) sobre a API FFI: keygen, encrypt, decrypt com padding <code>Raw</code>. Nenhuma aritmética modular escrita à mão.</td></tr>
-          <tr><th>Frontend</th><td>HTML/CSS/JS sem bundler; viem via esm.sh, ElGamal via <code>.wasm</code> local (768 KB). Hospedado no GitHub Pages.</td></tr>
+          <tr><th>ElGamal</th><td><a href="https://botan.randombit.net">Botan</a> 3.14 (C++) compilado para WebAssembly com Emscripten. Ponte em C (<code>wasm/bridge.c</code>) sobre a API FFI: keygen, encrypt, decrypt com padding <code>Raw</code>. Nenhuma aritmética modular do esquema escrita à mão; só o ataque é código próprio.</td></tr>
+          <tr><th>Frontend</th><td>HTML/CSS/JS sem bundler; viem via esm.sh, ElGamal via <code>.wasm</code> local (922 KB). Hospedado no GitHub Pages.</td></tr>
           <tr><th>Redes</th><td>Anvil local (31337) e Sepolia (11155111).</td></tr>
         </tbody>
       </table>
@@ -78,7 +79,7 @@
 
     <fieldset>
       <legend>Demonstração em Anvil</legend>
-      <p>Teste automatizado (<code>npm test</code>): sobe um Anvil, abre a página num navegador headless com uma carteira fake e executa Alice → Bob → Alice. O vídeo e o log abaixo são os artefatos desse teste, commitados em <code>public/media/</code>.</p>
+      <p>Teste automatizado (<code>npm test</code>): sobe um Anvil, abre a página num navegador headless com uma carteira simulada e executa Alice → Bob → Alice. O vídeo e o log abaixo são os artefatos desse teste, commitados em <code>public/media/</code>.</p>
       <video controls preload="metadata" src="media/demo-anvil.webm"></video>
       <pre id="demoLog">carregando log…</pre>
     </fieldset>
@@ -86,8 +87,8 @@
     <fieldset class="dense">
       <legend>Quebrando: log discreto com Pollard rho</legend>
       <ul>
-        <li>Página <a href="attack.html">Ataque</a>: chave com p pequeno (8–64 bits), cifra, recupera x de (p, g, y).</li>
-        <li>Pollard rho: caminhada r-adding, ciclo de Brent, Montgomery 64 bits, em C → wasm.</li>
+        <li>Página <a href="attack.html">Ataque</a>: chave com p pequeno (16–64 bits), cifra, recupera x de (p, g, y).</li>
+        <li>Pollard rho: caminhada r-adding, ciclo por Brent, Montgomery de 64 bits, em C → wasm.</li>
         <li>O x recuperado vai para o Botan, que decifra a mensagem: a quebra é real.</li>
         <li>Custo ≈ 1,25·√q iterações: cada +8 bits ≈ 16× mais tempo. Medido abaixo (<code>npm run bench</code>).</li>
       </ul>
@@ -103,9 +104,9 @@
       <legend>E se o atacante tiver um computador quântico?</legend>
       <ul>
         <li>Rho é exponencial; <strong>Shor</strong> resolve log discreto em tempo polinomial.</li>
-        <li>ElGamal-2048: 10^293 anos hoje, horas numa máquina quântica tolerante a falhas.</li>
+        <li>ElGamal-2048: ~2^112 operações hoje (NFS); horas com Shor numa máquina quântica.</li>
         <li>Não dá para demonstrar: simular Shor só funciona para p de poucos bits.</li>
-        <li>Resposta: trocar o esquema. <strong>ML-KEM</strong> (FIPS 203) + HKDF + AES-256/GCM, também do Botan.</li>
+        <li>Resposta: trocar o esquema. <strong>ML-KEM</strong> (FIPS 203, reticulados) + HKDF + AES-256/GCM, também do Botan.</li>
         <li>Mesmo bytecode, segunda instância. O contrato continua guardando <code>bytes</code>.</li>
       </ul>
       <table>
@@ -113,15 +114,16 @@
         <tbody id="compareTable"></tbody>
       </table>
       <p id="compareSummary" class="feedback"></p>
-      <p class="slide-hide">Mensagem de 32 bytes; gas medido em Anvil (<code>npm run compare</code>). Ciphertext do ML-KEM é maior (o encapsulado tem 768–1568 bytes), mas a chave pública é parecida e a criptografia é 100× mais rápida. Preço do pós-quântico aqui: ~1,4× no registro e ~2× no envio.</p>
+      <p class="slide-hide">Mensagem de 32 bytes; gas medido em Anvil (<code>npm run compare</code>). O texto cifrado do ML-KEM é maior (o encapsulado tem 768–1568 bytes) e a chave pública vai de quase igual (ML-KEM-512) a ~2× (ML-KEM-1024), mas cifrar é ~100× mais rápido. Preço do pós-quântico aqui (ML-KEM-768): ~1,4× o gas no registro e ~2× no envio.</p>
       <video class="slide-hide" controls preload="metadata" src="media/demo-anvil-pq.webm"></video>
     </fieldset>
 
     <fieldset>
       <legend>Limitações (de propósito)</legend>
       <ul>
-        <li>ElGamal textbook: maleável, sem padding, sem segurança CCA. Serve para estudar o esquema, não para uso real.</li>
-        <li>Padding <code>Raw</code>: o inteiro é a própria mensagem. Botan oferece OAEP, mas aqui o objetivo é ver o esquema cru.</li>
+        <li>ElGamal textbook: maleável (homomórfico), sem padding, sem segurança contra texto cifrado escolhido (CCA). Serve para estudar o esquema, não para uso real.</li>
+        <li>A mensagem não é codificada no subgrupo de ordem q: c2 vaza o símbolo de Legendre de m, então nem IND-CPA o esquema cru garante.</li>
+        <li>Codificação <code>Raw</code> (sem padding): o inteiro é a própria mensagem. Botan oferece OAEP, mas aqui o objetivo é ver o esquema cru.</li>
         <li>Chave privada no localStorage, em claro.</li>
         <li>Metadados (quem fala com quem, quando) são públicos na cadeia.</li>
       </ul>
